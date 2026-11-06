@@ -104,4 +104,19 @@ class Task extends Model
     {
         return $query->whereNotNull('repeat');
     }
+
+    /**
+     * List order from SPEC §8: by due date (so overdue comes first, undated
+     * last), then importance high → low, then manual position.
+     * Plain CASE expressions keep it portable between SQLite and MySQL.
+     */
+    public function scopeOrderedForList(Builder $query): Builder
+    {
+        return $query
+            ->orderByRaw('CASE WHEN due_at IS NULL THEN 1 ELSE 0 END')
+            ->orderBy('due_at')
+            ->orderByRaw("CASE importance WHEN 'high' THEN 0 WHEN 'medium' THEN 1 ELSE 2 END")
+            ->orderBy('position')
+            ->orderBy('id');
+    }
 }

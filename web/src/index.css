@@ -1,0 +1,26 @@
+@import './tokens.css';
+
+:root {
+  color-scheme: dark;
+  font: 16px/1.5 var(--font);
+  color: var(--text);
+  background: var(--layer-0);
+  -webkit-font-smoothing: antialiased;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--layer-0);
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
