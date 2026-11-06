@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Hash;
  */
 class SetGatePassword extends Command
 {
+    /** A curtain, not security (SPEC §5.1): a 4-digit code is enough. */
+    public const MIN_LENGTH = 4;
+
     protected $signature = 'gate:password {--clear : Remove the password and leave the app open}';
 
     protected $description = 'Set the password that opens the app (stored as a hash in .env)';
@@ -34,8 +37,8 @@ class SetGatePassword extends Command
 
         $password = (string) $this->secret('New password');
 
-        if (mb_strlen($password) < 8) {
-            $this->error('Use at least 8 characters.');
+        if (mb_strlen($password) < self::MIN_LENGTH) {
+            $this->error('Use at least '.self::MIN_LENGTH.' characters.');
 
             return self::FAILURE;
         }

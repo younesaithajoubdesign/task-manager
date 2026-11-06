@@ -117,6 +117,26 @@ describe('gate:password command', function () {
         expect(file_get_contents("{$this->envDir}/.env"))->toContain("APP_PASSWORD_HASH='old'");
     });
 
+    it('accepts a 4-digit code', function () {
+        $this->artisan('gate:password')
+            ->expectsQuestion('New password', '4821')
+            ->expectsQuestion('Repeat it', '4821')
+            ->assertSuccessful();
+
+        preg_match("/^APP_PASSWORD_HASH='(.+)'$/m", file_get_contents("{$this->envDir}/.env"), $match);
+
+        expect(Hash::check('4821', $match[1]))->toBeTrue();
+    });
+
+    it('refuses fewer than 4 characters', function () {
+        $this->artisan('gate:password')
+            ->expectsQuestion('New password', '482')
+            ->expectsOutputToContain('Use at least 4 characters.')
+            ->assertFailed();
+
+        expect(file_get_contents("{$this->envDir}/.env"))->toContain("APP_PASSWORD_HASH='old'");
+    });
+
     it('removes the password with --clear', function () {
         $this->artisan('gate:password', ['--clear' => true])->assertSuccessful();
 
