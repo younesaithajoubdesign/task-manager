@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { apiGet } from './api.js'
+import { useState } from 'react'
+import TaskEditor from './TaskEditor.jsx'
 
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -32,49 +32,35 @@ function describeRepeat(task) {
   return null
 }
 
-function TaskRow({ task }) {
+function TaskRow({ task, onOpen }) {
   const due = task.due_at ? describeDue(task.due_at) : null
   const meta = due?.text ?? describeRepeat(task)
 
   return (
-    <li
+    <button
+      type="button"
       className={`task ${task.is_done_today ? 'task--done' : ''}`}
-      title={task.sub_category.title}
+      title={`${task.sub_category.title} — click to edit`}
+      onClick={onOpen}
     >
       <span
         className="task__bar"
         style={{ '--sub-color': task.sub_category.color }}
       />
-      <div className="task__body">
-        <p className="task__title">{task.title}</p>
+      <span className="task__body">
+        <span className="task__title">{task.title}</span>
         {meta && (
-          <p className={`task__meta ${due?.overdue ? 'task__meta--overdue' : ''}`}>
+          <span className={`task__meta ${due?.overdue ? 'task__meta--overdue' : ''}`}>
             {meta}
-          </p>
+          </span>
         )}
-      </div>
-    </li>
+      </span>
+    </button>
   )
 }
 
-export default function TaskList() {
-  const [tasks, setTasks] = useState([])
-  const [state, setState] = useState('loading') // loading | ready | error
-
-  useEffect(() => {
-    const controller = new AbortController()
-
-    apiGet('/tasks', { signal: controller.signal })
-      .then(({ data }) => {
-        setTasks(data)
-        setState('ready')
-      })
-      .catch((err) => {
-        if (err.name !== 'AbortError') setState('error')
-      })
-
-    return () => controller.abort()
-  }, [])
+export default function TaskList({ tasks, state, onSave, onDelete }) {
+  const [editingId, setEditingId] = useState(null)
 
   if (state === 'loading') return <p className="status">Loading tasks…</p>
   if (state === 'error') {
@@ -84,12 +70,25 @@ export default function TaskList() {
       </p>
     )
   }
-  if (tasks.length === 0) return <p className="status">Nothing open. Enjoy.</p>
+  if (tasks.length === 0) {
+    return <p className="status">Nothing open. Press N to add a task.</p>
+  }
 
   return (
     <ul className="task-list">
       {tasks.map((task) => (
-        <TaskRow key={task.id} task={task} />
+        <li key={task.id}>
+          {editingId === task.id ? (
+            <TaskEditor
+              task={task}
+              onSave={onSave}
+              onDelete={onDelete}
+              onClose={() => setEditingId(null)}
+            />
+          ) : (
+            <TaskRow task={task} onOpen={() => setEditingId(task.id)} />
+          )}
+        </li>
       ))}
     </ul>
   )

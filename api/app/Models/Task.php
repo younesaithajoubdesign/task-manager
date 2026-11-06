@@ -17,11 +17,55 @@ class Task extends Model
         'due_at', 'completed_at', 'repeat', 'repeat_days', 'position',
     ];
 
-    protected $casts = [
-        'due_at'       => 'datetime',
-        'completed_at' => 'datetime',
-        'repeat_days'  => 'array',
+    /**
+     * Mirrors the column defaults in the migration, so a freshly created
+     * task (quick capture sends only a title) has them without a re-query.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'type' => 'open',
+        'importance' => 'medium',
+        'status' => 'todo',
+        'position' => 0,
     ];
+
+    protected $casts = [
+        'due_at' => 'datetime',
+        'completed_at' => 'datetime',
+        'repeat_days' => 'array',
+    ];
+
+    /**
+     * Keep completed_at in step with status, whichever path changes it.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (Task $task) {
+            if ($task->isDirty('status')) {
+                $task->completed_at = $task->status === 'done'
+                    ? ($task->completed_at ?? now())
+                    : null;
+            }
+        });
+    }
+
+    /**
+     * Relations a task row needs (see TaskResource), constrained to today
+     * so is_done_today and tracked_seconds_today cost no extra queries.
+     *
+     * @return array<string|int, mixed>
+     */
+    public static function listRelations(): array
+    {
+        $today = today()->toDateString();
+
+        return [
+            'subCategory',
+            'completions' => fn ($query) => $query->whereDate('date', $today),
+            'timeEntries' => fn ($query) => $query->whereDate('started_at', $today),
+        ];
+    }
 
     // ---- Relations ----------------------------------------------------
 
@@ -69,9 +113,9 @@ class Task extends Model
     public function occursOn(Carbon $date): bool
     {
         return match ($this->repeat) {
-            'daily'  => true,
+            'daily' => true,
             'weekly' => in_array($date->dayOfWeekIso, $this->repeat_days ?? [], true),
-            default  => false,
+            default => false,
         };
     }
 

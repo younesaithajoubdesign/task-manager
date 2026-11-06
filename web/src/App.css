@@ -18,6 +18,172 @@
   color: var(--danger);
 }
 
+/* ---- Shared controls ------------------------------------------------- */
+
+input,
+select,
+textarea,
+button {
+  font: inherit;
+  color: inherit;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: var(--space-1) var(--space-2);
+  background: var(--layer-2);
+  border: none;
+  border-radius: var(--radius);
+  outline: none;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+textarea {
+  resize: vertical;
+}
+
+input[type='date'] {
+  color-scheme: dark;
+}
+
+.button,
+.icon-button,
+.chip {
+  border: none;
+  cursor: pointer;
+  background: var(--layer-2);
+  border-radius: var(--radius);
+}
+
+.button {
+  padding: var(--space-1) var(--space-2);
+}
+
+.button:hover,
+.icon-button:hover,
+.chip:hover {
+  background: var(--layer-3);
+}
+
+.button--primary {
+  background: var(--primary);
+  color: var(--layer-0);
+  font-weight: 600;
+}
+
+.button--primary:hover {
+  background: var(--primary);
+  filter: brightness(1.1);
+}
+
+.button:disabled,
+.icon-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.icon-button {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: var(--text-secondary);
+}
+
+.icon-button--danger:hover {
+  color: var(--danger);
+}
+
+.chip {
+  padding: var(--space-half) var(--space-2);
+  border-radius: var(--radius-lg);
+  color: var(--text-secondary);
+}
+
+.chip--on {
+  background: var(--primary);
+  color: var(--layer-0);
+}
+
+.chip--on:hover {
+  background: var(--primary);
+}
+
+/* ---- Quick capture --------------------------------------------------- */
+
+.capture {
+  margin-bottom: var(--space-3);
+}
+
+.capture__field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0 var(--space-2);
+  background: var(--layer-1);
+  border-radius: var(--radius);
+  cursor: text;
+}
+
+.capture__field:focus-within {
+  background: var(--layer-2);
+}
+
+.capture__icon {
+  flex: none;
+  color: var(--text-secondary);
+}
+
+.capture__field:focus-within .capture__icon {
+  color: var(--primary);
+}
+
+.capture__input {
+  flex: 1;
+  padding: var(--space-2) 0;
+  background: transparent;
+  font-size: 16px;
+}
+
+.capture__input:focus-visible {
+  outline: none;
+}
+
+.capture__input::placeholder {
+  color: var(--text-disabled);
+}
+
+.capture__hint {
+  flex: none;
+  padding: 0 var(--space-1);
+  border-radius: var(--space-half);
+  background: var(--layer-2);
+  color: var(--text-secondary);
+  font: 12px/24px var(--font);
+}
+
+.capture__field:focus-within .capture__hint {
+  visibility: hidden;
+}
+
+.capture__error {
+  margin-top: var(--space-1);
+  color: var(--danger);
+  font-size: 14px;
+}
+
+/* ---- Task list ------------------------------------------------------- */
+
 .task-list {
   list-style: none;
   margin: 0;
@@ -32,12 +198,16 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  width: 100%;
   padding: var(--space-2);
   padding-left: var(--space-3);
   background: var(--layer-1);
+  border: none;
   border-radius: var(--radius);
   position: relative;
   overflow: hidden;
+  text-align: left;
+  cursor: pointer;
 }
 
 .task:hover {
@@ -55,6 +225,8 @@
 .task__body {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .task__title {
@@ -74,4 +246,61 @@
 .task--done .task__title {
   color: var(--text-disabled);
   text-decoration: line-through;
+}
+
+/* ---- Editor ---------------------------------------------------------- */
+
+.editor {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-2);
+  padding: var(--space-2);
+  background: var(--layer-1);
+  border-radius: var(--radius);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-half);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.field--wide {
+  grid-column: 1 / -1;
+}
+
+.field__label {
+  padding: 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.field__error {
+  font-size: 13px;
+  color: var(--danger);
+}
+
+.days {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.days .field__label {
+  width: 100%;
+}
+
+.editor__actions {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.editor__spacer {
+  flex: 1;
 }

@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\IndexTaskRequest;
+use App\Http\Requests\StoreTaskRequest;
+use App\Http\Requests\UpdateTaskRequest;
 use App\Http\Resources\TaskResource;
 use App\Models\Task;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class TaskController extends Controller
 {
@@ -15,8 +18,6 @@ class TaskController extends Controller
      */
     public function index(IndexTaskRequest $request): AnonymousResourceCollection
     {
-        $today = today()->toDateString();
-
         $tasks = Task::query()
             ->when(
                 $request->filled('status'),
@@ -31,14 +32,40 @@ class TaskController extends Controller
                 $request->filled('category_id'),
                 fn ($query) => $query->whereRelation('subCategory', 'category_id', $request->validated('category_id')),
             )
-            ->with([
-                'subCategory',
-                'completions' => fn ($query) => $query->whereDate('date', $today),
-                'timeEntries' => fn ($query) => $query->whereDate('started_at', $today),
-            ])
+            ->with(Task::listRelations())
             ->orderedForList()
             ->get();
 
         return TaskResource::collection($tasks);
+    }
+
+    /**
+     * Create a task. Quick capture sends only a title (201).
+     */
+    public function store(StoreTaskRequest $request): TaskResource
+    {
+        $task = Task::create($request->taskAttributes());
+
+        return TaskResource::make($task->load(Task::listRelations()));
+    }
+
+    /**
+     * Partially update a task: only the fields sent change.
+     */
+    public function update(UpdateTaskRequest $request, Task $task): TaskResource
+    {
+        $task->update($request->taskAttributes());
+
+        return TaskResource::make($task->load(Task::listRelations()));
+    }
+
+    /**
+     * Delete a task with its completions and time entries (cascade).
+     */
+    public function destroy(Task $task): Response
+    {
+        $task->delete();
+
+        return response()->noContent();
     }
 }
