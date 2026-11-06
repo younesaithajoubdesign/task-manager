@@ -1355,3 +1355,73 @@ button.task__check:disabled {
     flex: none;
   }
 }
+
+/* ---- Offline (SPEC addendum §13) -------------------------------------- */
+
+/* Persistent, above everything, including focus mode; room is made below. */
+.offline {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 20;
+  min-height: var(--offline-banner);
+  padding: calc(var(--space-1) + env(safe-area-inset-top)) var(--space-2) var(--space-1);
+  background: var(--layer-2);
+  color: var(--text);
+  font-size: 14px;
+  text-align: center;
+}
+
+:root {
+  --offline-banner: 40px;
+}
+
+.is-offline .app {
+  padding-top: calc(var(--offline-banner) + var(--space-3) + env(safe-area-inset-top));
+}
+
+.is-offline .focus {
+  padding-top: calc(var(--offline-banner) + var(--space-3));
+}
+
+.is-offline .focus__corner {
+  top: calc(var(--offline-banner) + var(--space-2) + env(safe-area-inset-top));
+}
+
+/* A <fieldset disabled> that disables its controls without boxing them. */
+.offline-lock {
+  display: contents;
+  border: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+/* Disabled and visibly so, not clickable-then-failing. */
+input:disabled,
+select:disabled,
+textarea:disabled,
+.chip:disabled,
+.round:disabled,
+.task__play:disabled,
+button.task__check:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.round:disabled:hover,
+.task__play:disabled:hover,
+button.task__check:disabled:hover {
+  background: var(--layer-2);
+}
+
+.task__play:disabled:hover {
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 767.98px) {
+  /* The banner sentence wraps to two lines on a phone. */
+  :root {
+    --offline-banner: 64px;
+  }
+}

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useOnline } from './connectivity.js'
 import Icon from './Icon.jsx'
 import LoadState from './LoadState.jsx'
 import {
@@ -125,6 +126,7 @@ function countLabel(item) {
 export default function ManageView({ navigate }) {
   const { data: categories, state, reload } = useFetch('/categories')
   const { sync } = useTimer()
+  const online = useOnline()
   const [error, setError] = useState(null)
 
   if (state !== 'ready') return <LoadState state={state} />
@@ -177,6 +179,9 @@ export default function ManageView({ navigate }) {
       </div>
 
       {error && <p className="status status--error">{error}</p>}
+
+      {/* Every control here writes: all disabled offline (SPEC addendum §13). */}
+      <fieldset className="offline-lock" disabled={!online}>
 
       <AddField
         label="New category"
@@ -238,6 +243,7 @@ export default function ManageView({ navigate }) {
           />
         </section>
       ))}
+      </fieldset>
     </div>
   )
 }

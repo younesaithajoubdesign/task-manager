@@ -1,6 +1,7 @@
 // Same origin by default: the Vite dev server proxies /api to Laravel (vite.config.js),
 // and in production the web server does the same. VITE_API_URL can still point
 // elsewhere; CORS (api/config/cors.php) allows http://localhost:5173 for that.
+import { reportNetworkError, reportResponse } from './connectivity.js'
 import { clearToken, getToken, LOCKED_EVENT } from './gateToken.js'
 
 const API_URL = import.meta.env.VITE_API_URL ?? ''
@@ -16,16 +17,24 @@ export class ApiError extends Error {
 }
 
 async function request(method, path, { body, signal } = {}) {
-  const res = await fetch(`${API_URL}/api${path}`, {
-    method,
-    headers: {
-      Accept: 'application/json',
-      ...(body !== undefined && { 'Content-Type': 'application/json' }),
-      ...(getToken() && { Authorization: `Bearer ${getToken()}` }),
-    },
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-    signal,
-  })
+  let res
+  try {
+    res = await fetch(`${API_URL}/api${path}`, {
+      method,
+      headers: {
+        Accept: 'application/json',
+        ...(body !== undefined && { 'Content-Type': 'application/json' }),
+        ...(getToken() && { Authorization: `Bearer ${getToken()}` }),
+      },
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+      signal,
+    })
+  } catch (err) {
+    // No answer at all: offline (or the server is down). Aborts are not.
+    if (err.name !== 'AbortError') reportNetworkError()
+    throw err
+  }
+  reportResponse(res)
 
   if (res.status === 204) return null
 

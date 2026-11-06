@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useOnline } from './connectivity.js'
 import Icon from './Icon.jsx'
 
 function isTypingIn(element) {
@@ -24,6 +25,7 @@ export default function QuickCapture({
   const [title, setTitle] = useState('')
   const [error, setError] = useState(null)
   const [saving, setSaving] = useState(false)
+  const online = useOnline()
 
   useEffect(() => {
     function onKeyDown(event) {
@@ -73,7 +75,8 @@ export default function QuickCapture({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           onKeyDown={(e) => e.key === 'Escape' && e.currentTarget.blur()}
-          placeholder={placeholder}
+          placeholder={online ? placeholder : 'Offline — adding is disabled'}
+          disabled={!online}
           autoFocus={autoFocus}
           aria-label="New task title"
           maxLength={255}

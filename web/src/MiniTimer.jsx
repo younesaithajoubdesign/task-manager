@@ -1,3 +1,4 @@
+import { useOnline } from './connectivity.js'
 import Icon from './Icon.jsx'
 import { useTimer } from './timerContext.js'
 import { formatDuration, useElapsed } from './useElapsed.js'
@@ -6,6 +7,7 @@ import { formatDuration, useElapsed } from './useElapsed.js'
 export default function MiniTimer() {
   const { timer, syncedAt, pause, resume, expand } = useTimer()
   const elapsed = useElapsed(timer, syncedAt)
+  const online = useOnline()
   const over = timer.planned_seconds !== null && elapsed >= timer.planned_seconds
 
   return (
@@ -21,6 +23,7 @@ export default function MiniTimer() {
         type="button"
         className="icon-button"
         onClick={timer.is_running ? pause : resume}
+        disabled={!online}
         aria-label={timer.is_running ? 'Pause' : 'Resume'}
       >
         <Icon name={timer.is_running ? 'pause' : 'play'} />

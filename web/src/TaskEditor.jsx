@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useOnline } from './connectivity.js'
 import Icon from './Icon.jsx'
 import { useFetch } from './useFetch.js'
 
@@ -51,6 +52,7 @@ export default function TaskEditor({ task, onSave, onDelete, onClose }) {
   const { data: categories } = useFetch('/categories')
   const [errors, setErrors] = useState({})
   const [saving, setSaving] = useState(false)
+  const online = useOnline()
 
   const set = (field) => (event) =>
     setForm((f) => ({ ...f, [field]: event.target.value }))
@@ -107,6 +109,8 @@ export default function TaskEditor({ task, onSave, onDelete, onClose }) {
       onSubmit={submit}
       onKeyDown={(e) => e.key === 'Escape' && onClose()}
     >
+      {/* Readable offline, not editable (SPEC addendum §13). */}
+      <fieldset className="offline-lock" disabled={!online}>
       <label className="field field--wide">
         <span className="field__label">Title</span>
         <input value={form.title} onChange={set('title')} autoFocus required />
@@ -214,12 +218,14 @@ export default function TaskEditor({ task, onSave, onDelete, onClose }) {
         {error('notes')}
       </label>
 
+      </fieldset>
+
       <div className="editor__actions">
         <button
           type="button"
           className="icon-button icon-button--danger"
           onClick={remove}
-          disabled={saving}
+          disabled={saving || !online}
           aria-label="Delete task"
           title="Delete task"
         >
@@ -229,7 +235,7 @@ export default function TaskEditor({ task, onSave, onDelete, onClose }) {
         <button type="button" className="button" onClick={onClose}>
           Cancel
         </button>
-        <button type="submit" className="button button--primary" disabled={saving}>
+        <button type="submit" className="button button--primary" disabled={saving || !online}>
           Save
         </button>
       </div>

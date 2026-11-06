@@ -23,7 +23,11 @@ export default function PasswordGate({ children }) {
       () => setState('open'),
     )
 
-    const lock = () => setState('locked')
+    const lock = () => {
+      setState('locked')
+      // Signed out (or token refused): data kept for offline reading goes too.
+      if ('caches' in window) caches.delete('api').catch(() => {})
+    }
     window.addEventListener(LOCKED_EVENT, lock)
     return () => window.removeEventListener(LOCKED_EVENT, lock)
   }, [])

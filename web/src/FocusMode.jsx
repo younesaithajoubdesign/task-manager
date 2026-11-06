@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { useOnline } from './connectivity.js'
 import Icon from './Icon.jsx'
 import { useTimer } from './timerContext.js'
 import { formatDuration, useElapsed } from './useElapsed.js'
@@ -21,12 +22,13 @@ function beep() {
   }
 }
 
-function RoundButton({ icon, label, onClick, primary }) {
+function RoundButton({ icon, label, onClick, primary, disabled = false }) {
   return (
     <button
       type="button"
       className={`round ${primary ? 'round--primary' : ''}`}
       onClick={onClick}
+      disabled={disabled}
       aria-label={label}
       title={label}
     >
@@ -42,6 +44,9 @@ function RoundButton({ icon, label, onClick, primary }) {
 export default function FocusMode() {
   const { timer, syncedAt, pause, resume, close, complete, reset, collapse } = useTimer()
   const elapsed = useElapsed(timer, syncedAt)
+  // The timer is online-only (§13): offline the digits keep ticking from the
+  // server's started_at, but every control that needs the server is disabled.
+  const offline = !useOnline()
   const planned = timer.planned_seconds
   const overTarget = planned !== null && elapsed >= planned
 
@@ -55,7 +60,7 @@ export default function FocusMode() {
   useEffect(() => {
     function onKeyDown(event) {
       if (event.key === 'Escape') collapse()
-      if (event.key === ' ' && event.target === document.body) {
+      if (event.key === ' ' && event.target === document.body && !offline) {
         event.preventDefault()
         if (timer.is_running) pause()
         else resume()
@@ -63,7 +68,7 @@ export default function FocusMode() {
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [collapse, pause, resume, timer.is_running])
+  }, [collapse, pause, resume, timer.is_running, offline])
 
   function confirmReset() {
     if (window.confirm("Reset today's time for this task to zero?")) reset()
@@ -74,7 +79,7 @@ export default function FocusMode() {
   return (
     <div className="focus" role="dialog" aria-modal="true" aria-label={`Timer: ${task.title}`}>
       <div className="focus__corner">
-        <RoundButton icon="close" label="Close (stops the timer)" onClick={close} />
+        <RoundButton icon="close" label="Close (stops the timer)" onClick={close} disabled={offline} />
         <RoundButton icon="minimize" label="Collapse (keeps running)" onClick={collapse} />
       </div>
 
@@ -105,13 +110,13 @@ export default function FocusMode() {
 
         <div className="focus__buttons">
           {timer.is_running ? (
-            <RoundButton icon="pause" label="Pause" onClick={pause} />
+            <RoundButton icon="pause" label="Pause" onClick={pause} disabled={offline} />
           ) : (
-            <RoundButton icon="play" label="Resume" onClick={resume} />
+            <RoundButton icon="play" label="Resume" onClick={resume} disabled={offline} />
           )}
-          <RoundButton icon="stop" label="Stop" onClick={close} />
-          <RoundButton icon="check" label="Complete" onClick={complete} primary />
-          <RoundButton icon="replay" label="Reset to zero" onClick={confirmReset} />
+          <RoundButton icon="stop" label="Stop" onClick={close} disabled={offline} />
+          <RoundButton icon="check" label="Complete" onClick={complete} primary disabled={offline} />
+          <RoundButton icon="replay" label="Reset to zero" onClick={confirmReset} disabled={offline} />
         </div>
       </div>
     </div>

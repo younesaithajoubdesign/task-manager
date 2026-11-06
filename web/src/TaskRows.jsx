@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useOnline } from './connectivity.js'
 import Icon from './Icon.jsx'
 import TaskEditor from './TaskEditor.jsx'
 import { useTimer } from './timerContext.js'
@@ -40,6 +41,7 @@ function describeRepeat(task) {
 
 function PlayButton({ task }) {
   const { timer, start, expand } = useTimer()
+  const online = useOnline()
   const isCurrent = timer?.task.id === task.id
 
   return (
@@ -47,6 +49,8 @@ function PlayButton({ task }) {
       type="button"
       className={`task__play ${isCurrent && timer.is_running ? 'task__play--on' : ''}`}
       onClick={() => (isCurrent ? expand() : start(task))}
+      // Opening the running timer is local; starting one needs the server (§13).
+      disabled={!isCurrent && !online}
       aria-label={isCurrent ? `Open timer for ${task.title}` : `Start timer for ${task.title}`}
       title={isCurrent ? 'Open timer' : 'Start timer'}
     >
@@ -63,6 +67,7 @@ function describeStreak(task) {
 
 function HabitCheck({ task, onToggle }) {
   const [pending, setPending] = useState(false)
+  const online = useOnline()
   const done = task.is_done_today
 
   async function toggle() {
@@ -82,7 +87,7 @@ function HabitCheck({ task, onToggle }) {
       aria-label={`${task.title}: ${done ? 'done today' : 'not done today'}`}
       className={`task__check ${done ? 'task__check--on' : ''}`}
       onClick={toggle}
-      disabled={pending}
+      disabled={pending || !online}
     >
       {done && <Icon name="check" size={24} />}
     </button>

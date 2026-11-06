@@ -4,6 +4,7 @@ import BrowseView from './BrowseView.jsx'
 import FocusMode from './FocusMode.jsx'
 import ManageView from './ManageView.jsx'
 import MiniTimer from './MiniTimer.jsx'
+import OfflineBanner from './OfflineBanner.jsx'
 import StatsView from './StatsView.jsx'
 import TabBar from './TabBar.jsx'
 import { useTimer } from './timerContext.js'
@@ -41,6 +42,7 @@ function App() {
 
   return (
     <>
+    <OfflineBanner />
     {/* inert while focus mode covers the screen: no tabbing or N-capture behind it. */}
     <main
       className={`app ${current === 'today' ? '' : 'app--wide'} ${timer && mode === 'mini' ? 'app--with-mini' : ''}`}
