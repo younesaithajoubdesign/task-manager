@@ -1,10 +1,27 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\TaskCompletionController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TimerController;
 use App\Http\Controllers\TodayController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/today', TodayController::class)->name('today');
 Route::apiResource('categories', CategoryController::class)->only('index');
 Route::apiResource('tasks', TaskController::class)->except('show');
+
+Route::post('/tasks/{task}/complete', [TaskCompletionController::class, 'store'])->name('tasks.complete');
+Route::post('/tasks/{task}/uncomplete', [TaskCompletionController::class, 'destroy'])->name('tasks.uncomplete');
+
+Route::get('/timer/running', [TimerController::class, 'running'])->name('timer.running');
+Route::controller(TimerController::class)
+    ->prefix('/tasks/{task}/timer')
+    ->name('timer.')
+    ->group(function () {
+        Route::post('/start', 'start')->name('start');
+        Route::post('/pause', 'pause')->name('pause');
+        Route::post('/resume', 'resume')->name('resume');
+        Route::post('/stop', 'stop')->name('stop');
+        Route::post('/reset', 'reset')->name('reset');
+    });

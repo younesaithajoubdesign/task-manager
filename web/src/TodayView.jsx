@@ -3,6 +3,7 @@ import QuickCapture from './QuickCapture.jsx'
 import TaskRows from './TaskRows.jsx'
 import { createTask, deleteTask, updateTask } from './tasksApi.js'
 import { useFetch } from './useFetch.js'
+import { useTimer } from './timerContext.js'
 
 function Section({ title, count, tone, children }) {
   return (
@@ -21,7 +22,8 @@ function Section({ title, count, tone, children }) {
  * Tasks captured here are due today, so they land on this screen.
  */
 export default function TodayView() {
-  const { data, state, reload } = useFetch('/today')
+  const { version } = useTimer()
+  const { data, state, reload } = useFetch('/today', version)
 
   if (state !== 'ready') return <LoadState state={state} />
 

@@ -557,3 +557,202 @@ input[type='date'] {
     flex: none;
   }
 }
+
+/* ---- Row play button (SPEC §5.2 / §5.3) ----------------------------- */
+
+/* The row is a container: the main area edits, the play button times. */
+.task {
+  cursor: default;
+}
+
+.task__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.task__play {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.task__play:hover {
+  background: var(--layer-3);
+  color: var(--text);
+}
+
+.task__play--on {
+  color: var(--primary);
+}
+
+/* ---- Focus mode (SPEC §5.4) ----------------------------------------- */
+
+.focus {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: var(--space-3) var(--space-2);
+  background: var(--layer-0);
+}
+
+.focus__corner {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.focus__card {
+  width: min(640px, 100%);
+  padding: var(--space-4) var(--space-3);
+  background: var(--layer-1);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
+.focus__task {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--text-secondary);
+}
+
+.focus__dot {
+  width: var(--space-1);
+  height: var(--space-1);
+  border-radius: 50%;
+  background: var(--sub-color);
+}
+
+.focus__digits {
+  margin: var(--space-2) 0 var(--space-1);
+  font-size: clamp(64px, 18vw, 136px);
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.focus__digits--over {
+  color: var(--primary);
+}
+
+.focus__digits--paused {
+  opacity: 0.5;
+}
+
+.focus__target {
+  color: var(--text-secondary);
+}
+
+.focus__buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.round {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border: none;
+  border-radius: 50%;
+  background: var(--layer-2);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.focus__corner .round {
+  width: 48px;
+  height: 48px;
+}
+
+.round:hover {
+  background: var(--layer-3);
+}
+
+.round--primary {
+  color: var(--primary);
+}
+
+/* ---- Mini timer ----------------------------------------------------- */
+
+.app--with-mini {
+  padding-bottom: 120px;
+}
+
+.mini {
+  position: fixed;
+  left: 50%;
+  bottom: var(--space-2);
+  z-index: 5;
+  transform: translateX(-50%);
+  width: min(480px, calc(100% - var(--space-4)));
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3);
+  background: var(--layer-2);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 var(--space-1) var(--space-3) hsl(0 0% 0% / 0.6);
+}
+
+.mini__bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--space-1);
+  background: var(--sub-color);
+}
+
+.mini__open {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) 0;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mini__title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mini__digits {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.mini__digits--over {
+  color: var(--primary);
+}

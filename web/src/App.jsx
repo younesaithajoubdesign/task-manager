@@ -1,5 +1,8 @@
 import { useState } from 'react'
 import BrowseView from './BrowseView.jsx'
+import FocusMode from './FocusMode.jsx'
+import MiniTimer from './MiniTimer.jsx'
+import { useTimer } from './timerContext.js'
 import TodayView from './TodayView.jsx'
 import './App.css'
 
@@ -20,9 +23,16 @@ function App() {
   // The app always opens on Today (SPEC §5.2).
   const [view, setView] = useState('today')
   const { Component } = VIEWS[view]
+  const { timer, mode } = useTimer()
+  const focusOpen = timer !== null && mode === 'focus'
 
   return (
-    <main className={`app ${view === 'browse' ? 'app--wide' : ''}`}>
+    <>
+    {/* inert while focus mode covers the screen: no tabbing or N-capture behind it. */}
+    <main
+      className={`app ${view === 'browse' ? 'app--wide' : ''} ${timer && mode === 'mini' ? 'app--with-mini' : ''}`}
+      inert={focusOpen}
+    >
       <header className="app__header">
         <nav className="tabs" aria-label="Views">
           {Object.entries(VIEWS).map(([key, { label }]) => (
@@ -41,6 +51,9 @@ function App() {
       </header>
       <Component key={view} />
     </main>
+    {focusOpen && <FocusMode />}
+    {timer && mode === 'mini' && <MiniTimer />}
+    </>
   )
 }
 

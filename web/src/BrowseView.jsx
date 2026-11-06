@@ -4,6 +4,7 @@ import QuickCapture from './QuickCapture.jsx'
 import TaskRows from './TaskRows.jsx'
 import { createTask, deleteTask, updateTask } from './tasksApi.js'
 import { useFetch } from './useFetch.js'
+import { useTimer } from './timerContext.js'
 
 const ALL = 'all'
 const STORAGE_KEY = 'browse.category'
@@ -105,8 +106,9 @@ export default function BrowseView() {
   const [subId, setSubId] = useState(null)
   const [showDone, setShowDone] = useState(false)
 
-  const categoriesFetch = useFetch('/categories')
-  const tasksFetch = useFetch(tasksPath(categoryId, subId, showDone))
+  const { version } = useTimer()
+  const categoriesFetch = useFetch('/categories', version)
+  const tasksFetch = useFetch(tasksPath(categoryId, subId, showDone), version)
 
   if (categoriesFetch.state !== 'ready') return <LoadState state={categoriesFetch.state} />
 

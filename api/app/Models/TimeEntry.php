@@ -11,7 +11,7 @@ class TimeEntry extends Model
 
     protected $casts = [
         'started_at' => 'datetime',
-        'ended_at'   => 'datetime',
+        'ended_at' => 'datetime',
     ];
 
     public function task(): BelongsTo
@@ -31,7 +31,7 @@ class TimeEntry extends Model
     public function elapsedSeconds(): int
     {
         return $this->isRunning()
-            ? $this->started_at->diffInSeconds(now())
+            ? (int) $this->started_at->diffInSeconds(now())
             : (int) $this->duration_seconds;
     }
 
@@ -39,7 +39,7 @@ class TimeEntry extends Model
     public function stop(): void
     {
         $this->ended_at = now();
-        $this->duration_seconds = $this->started_at->diffInSeconds($this->ended_at);
+        $this->duration_seconds = (int) $this->started_at->diffInSeconds($this->ended_at);
         $this->save();
     }
 }

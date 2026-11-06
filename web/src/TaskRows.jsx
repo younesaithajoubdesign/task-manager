@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Icon from './Icon.jsx'
 import TaskEditor from './TaskEditor.jsx'
+import { useTimer } from './timerContext.js'
 
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -37,17 +38,36 @@ function describeRepeat(task) {
   return null
 }
 
-function TaskRow({ task, onOpen }) {
-  const due = task.due_at ? describeDue(task.due_at) : null
-  const meta = due?.text ?? describeRepeat(task)
+function PlayButton({ task }) {
+  const { timer, start, expand } = useTimer()
+  const isCurrent = timer?.task.id === task.id
 
   return (
     <button
       type="button"
-      className={`task ${task.is_done_today ? 'task--done' : ''}`}
-      title={`${task.sub_category.title} — click to edit`}
-      onClick={onOpen}
+      className={`task__play ${isCurrent && timer.is_running ? 'task__play--on' : ''}`}
+      onClick={() => (isCurrent ? expand() : start(task))}
+      aria-label={isCurrent ? `Open timer for ${task.title}` : `Start timer for ${task.title}`}
+      title={isCurrent ? 'Open timer' : 'Start timer'}
     >
+      <Icon name="play" size={32} />
+    </button>
+  )
+}
+
+function TaskRow({ task, onOpen }) {
+  const due = task.due_at ? describeDue(task.due_at) : null
+  const meta = due?.text ?? describeRepeat(task)
+  const canPlay = !(task.status === 'done' && !task.is_recurring)
+
+  return (
+    <div className={`task ${task.is_done_today ? 'task--done' : ''}`}>
+      <button
+        type="button"
+        className="task__main"
+        title={`${task.sub_category.title} — click to edit`}
+        onClick={onOpen}
+      >
       <span
         className="task__bar"
         style={{ '--sub-color': task.sub_category.color }}
@@ -69,7 +89,9 @@ function TaskRow({ task, onOpen }) {
           </span>
         )}
       </span>
-    </button>
+      </button>
+      {canPlay && <PlayButton task={task} />}
+    </div>
   )
 }
 

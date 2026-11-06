@@ -3,9 +3,10 @@ import { apiGet } from './api.js'
 
 /**
  * GET `path` on mount and expose `reload()` for after a write.
+ * A change of `refreshKey` (e.g. the timer's version) also re-reads.
  * Screens re-read from the server so ordering and grouping stay the API's job.
  */
-export function useFetch(path) {
+export function useFetch(path, refreshKey = 0) {
   const [data, setData] = useState(null)
   const [state, setState] = useState('loading') // loading | ready | error
 
@@ -20,7 +21,9 @@ export function useFetch(path) {
           if (err.name !== 'AbortError') setState('error')
         },
       ),
-    [path],
+    // refreshKey is a deliberate dependency: changing it re-runs the fetch.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [path, refreshKey],
   )
 
   useEffect(() => {
