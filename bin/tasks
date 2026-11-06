@@ -1,0 +1,118 @@
+#!/bin/bash
+# Starts the app on this Mac: Laravel on 127.0.0.1:8000, the built web app on
+# http://localhost:4173 (with its service worker), then opens the browser.
+#
+#   bin/tasks start      start both servers (nothing happens if already running) and open the app
+#   bin/tasks stop       stop both servers
+#   bin/tasks status     say what is running
+#   bin/tasks open       open the app in the browser
+#
+# TASKS_NO_OPEN=1  start without opening the browser
+# TASKS_LAN=1      also reachable from the phone on the WiFi (http://<mac-ip>:4173)
+#
+# Logs: ~/Library/Logs/TaskManager/
+
+set -u
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+LOGS="$HOME/Library/Logs/TaskManager"
+RUN="$LOGS/run"
+URL="http://localhost:4173"
+API_PORT=8000
+WEB_PORT=4173
+
+# launchd starts with a bare PATH: add where PHP (Herd) and Node live.
+export PATH="$HOME/.config/herd-lite/bin:$HOME/Library/Application Support/Herd/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
+
+mkdir -p "$RUN"
+
+log() { echo "[$(date '+%F %T')] $*"; }
+
+listening() { lsof -nP -iTCP:"$1" -sTCP:LISTEN >/dev/null 2>&1; }
+
+wait_for() {
+    for _ in $(seq 1 60); do
+        listening "$1" && return 0
+        sleep 0.5
+    done
+    return 1
+}
+
+# Rebuild the web app when its sources are newer than the last build.
+build_if_needed() {
+    cd "$ROOT/web" || return 1
+    if [ ! -f dist/index.html ] || [ -n "$(find src public index.html vite.config.js package.json -newer dist/index.html 2>/dev/null | head -1)" ]; then
+        log "Building the web app"
+        npm run build >>"$LOGS/build.log" 2>&1 || { log "Build failed, see $LOGS/build.log"; return 1; }
+    fi
+}
+
+start_api() {
+    if listening $API_PORT; then
+        log "API already running on port $API_PORT"
+        return 0
+    fi
+    log "Starting the API"
+    cd "$ROOT/api/public" || return 1
+    PHP_CLI_SERVER_WORKERS=4 nohup php -S 127.0.0.1:$API_PORT \
+        ../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php \
+        >>"$LOGS/api.log" 2>&1 &
+    echo $! >"$RUN/api.pid"
+    wait_for $API_PORT || { log "API did not start, see $LOGS/api.log"; return 1; }
+}
+
+start_web() {
+    if listening $WEB_PORT; then
+        log "Web app already running on port $WEB_PORT"
+        return 0
+    fi
+    build_if_needed || return 1
+    log "Starting the web app"
+    cd "$ROOT/web" || return 1
+    local host_flag=""
+    [ "${TASKS_LAN:-0}" = 1 ] && host_flag="--host"
+    nohup node node_modules/vite/bin/vite.js preview $host_flag >>"$LOGS/web.log" 2>&1 &
+    echo $! >"$RUN/web.pid"
+    wait_for $WEB_PORT || { log "Web app did not start, see $LOGS/web.log"; return 1; }
+}
+
+stop_one() {
+    local name=$1 port=$2 pidfile="$RUN/$1.pid"
+    if [ -f "$pidfile" ]; then
+        kill "$(cat "$pidfile")" 2>/dev/null
+        rm -f "$pidfile"
+    fi
+    # Anything still holding the port (started by hand, or a php worker).
+    local pids
+    pids=$(lsof -nP -tiTCP:"$port" -sTCP:LISTEN 2>/dev/null)
+    [ -n "$pids" ] && kill $pids 2>/dev/null
+    log "Stopped $name"
+}
+
+status() {
+    listening $API_PORT && echo "API      running  (127.0.0.1:$API_PORT)" || echo "API      stopped"
+    listening $WEB_PORT && echo "Web app  running  ($URL)" || echo "Web app  stopped"
+}
+
+case "${1:-start}" in
+    start)
+        start_api && start_web || exit 1
+        log "Ready: $URL"
+        [ "${TASKS_NO_OPEN:-0}" = 1 ] || open "$URL"
+        ;;
+    stop)
+        stop_one web $WEB_PORT
+        stop_one api $API_PORT
+        ;;
+    restart)
+        "$0" stop
+        sleep 1
+        "$0" start
+        ;;
+    status) status ;;
+    open) open "$URL" ;;
+    *)
+        echo "Usage: bin/tasks [start|stop|restart|status|open]" >&2
+        exit 2
+        ;;
+esac
