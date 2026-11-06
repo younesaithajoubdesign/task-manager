@@ -6,6 +6,7 @@ use App\Http\Requests\LoginRequest;
 use App\Services\AccessGate;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 
 class GateController extends Controller
@@ -24,7 +25,7 @@ class GateController extends Controller
     }
 
     /**
-     * Exchange the password for the long-lived token kept in localStorage.
+     * Exchange the password for the token kept in localStorage (90 days).
      */
     public function store(LoginRequest $request): JsonResponse
     {
@@ -35,5 +36,15 @@ class GateController extends Controller
         }
 
         return response()->json(['data' => ['token' => $token]]);
+    }
+
+    /**
+     * Log this browser out: its token is refused from now on.
+     */
+    public function destroy(Request $request): Response
+    {
+        $this->gate->revoke($request->bearerToken());
+
+        return response()->noContent();
     }
 }

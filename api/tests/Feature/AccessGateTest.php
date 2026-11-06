@@ -70,14 +70,45 @@ it('signs every browser out when the password changes', function () {
     $this->getJson(route('tasks.index'), ['Authorization' => "Bearer {$oldToken}"])->assertUnauthorized();
 });
 
-it('returns 429 after ten attempts in a minute', function () {
+it('returns 429 after five attempts in a minute', function () {
     enableGate();
 
-    foreach (range(1, 10) as $attempt) {
+    foreach (range(1, 5) as $attempt) {
         $this->postJson(route('gate.store'), ['password' => 'nope'])->assertUnprocessable();
     }
 
     $this->postJson(route('gate.store'), ['password' => 'nope'])->assertTooManyRequests();
+});
+
+it('expires a token after 90 days', function () {
+    enableGate();
+    $token = tokenFor();
+
+    $this->travel(89)->days();
+    $this->getJson(route('tasks.index'), ['Authorization' => "Bearer {$token}"])->assertOk();
+
+    $this->travel(2)->days();
+    $this->getJson(route('tasks.index'), ['Authorization' => "Bearer {$token}"])->assertUnauthorized();
+});
+
+it('rejects a token whose expiry was pushed back by hand', function () {
+    enableGate();
+    [, $signature] = explode('.', tokenFor());
+    $forged = now()->addYears(5)->getTimestamp().'.'.$signature;
+
+    $this->getJson(route('tasks.index'), ['Authorization' => "Bearer {$forged}"])->assertUnauthorized();
+});
+
+it('logs a browser out without touching the others', function () {
+    enableGate();
+    $phone = tokenFor();
+    $this->travel(1)->seconds();
+    $laptop = tokenFor();
+
+    $this->deleteJson(route('gate.destroy'), [], ['Authorization' => "Bearer {$phone}"])->assertNoContent();
+
+    $this->getJson(route('tasks.index'), ['Authorization' => "Bearer {$phone}"])->assertUnauthorized();
+    $this->getJson(route('tasks.index'), ['Authorization' => "Bearer {$laptop}"])->assertOk();
 });
 
 describe('gate:password command', function () {

@@ -74,5 +74,11 @@ class SetGatePassword extends Command
         }
 
         file_put_contents($envPath, implode(PHP_EOL, $lines));
+
+        // In production the config is cached (`artisan optimize`), so .env
+        // is not read again until the cache is rebuilt from it.
+        if ($this->laravel->configurationIsCached()) {
+            $this->call('config:cache');
+        }
     }
 }

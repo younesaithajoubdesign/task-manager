@@ -10,9 +10,11 @@ use App\Http\Controllers\TimerController;
 use App\Http\Controllers\TodayController;
 use Illuminate\Support\Facades\Route;
 
-// The password curtain (SPEC §5.1): these two stay reachable without a token.
+// The password curtain (SPEC §5.1): these stay reachable without a token.
+// Five password tries a minute per IP (SPEC addendum §14).
 Route::get('/gate', [GateController::class, 'show'])->name('gate.show');
-Route::post('/gate', [GateController::class, 'store'])->middleware('throttle:10,1')->name('gate.store');
+Route::post('/gate', [GateController::class, 'store'])->middleware('throttle:5,1')->name('gate.store');
+Route::delete('/gate', [GateController::class, 'destroy'])->name('gate.destroy');
 
 Route::middleware('gate')->group(function () {
     Route::get('/today', TodayController::class)->name('today');

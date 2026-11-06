@@ -28,3 +28,14 @@ export function clearToken() {
 
 /** Fired when the API answers 401, so the app swaps to the password screen. */
 export const LOCKED_EVENT = 'gate:locked'
+
+/** Ask the server to revoke this browser's token, then forget it here. */
+export async function logOut(revoke) {
+  try {
+    await revoke()
+  } catch {
+    // Offline or already invalid: forgetting the token locally still locks this browser.
+  }
+  clearToken()
+  window.dispatchEvent(new Event(LOCKED_EVENT))
+}

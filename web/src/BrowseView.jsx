@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { apiDelete } from './api.js'
+import { getToken, logOut } from './gateToken.js'
 import LoadState from './LoadState.jsx'
 import QuickCapture from './QuickCapture.jsx'
 import TaskRows from './TaskRows.jsx'
@@ -60,6 +62,12 @@ function Sidebar({ categories, selectedId, onSelect, onManage }) {
       <button type="button" className="sidebar__manage" onClick={onManage}>
         Manage categories
       </button>
+      {/* Only when signed in with a token, i.e. a password is set. */}
+      {getToken() && (
+        <button type="button" className="sidebar__manage" onClick={() => logOut(() => apiDelete('/gate'))}>
+          Log out
+        </button>
+      )}
     </nav>
   )
 }

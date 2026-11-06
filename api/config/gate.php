@@ -15,4 +15,11 @@ return [
 
     'password_hash' => env('APP_PASSWORD_HASH'),
 
+    /*
+    | How long a browser stays signed in before the password is asked again
+    | (SPEC addendum §14).
+    */
+
+    'token_days' => (int) env('APP_TOKEN_DAYS', 90),
+
 ];

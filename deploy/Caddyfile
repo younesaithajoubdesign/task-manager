@@ -1,0 +1,31 @@
+# /etc/caddy/Caddyfile — SPEC addendum §11.
+# Replace YOUR-NAME with your DuckDNS subdomain (DEPLOY.md, step 7).
+# Caddy gets and renews the HTTPS certificate itself, and redirects HTTP to HTTPS.
+
+YOUR-NAME.duckdns.org {
+	encode zstd gzip
+
+	# Laravel answers /api/* only.
+	handle /api/* {
+		root * /srv/app/api/public
+		php_fastcgi unix//run/php/php8.5-fpm.sock
+	}
+
+	# Everything else is the built React app (one origin: no CORS in production).
+	handle {
+		root * /srv/app/web/dist
+		try_files {path} /index.html
+		file_server
+	}
+
+	# Vite puts a content hash in asset names, so they can be cached for good.
+	@assets path /assets/*
+	header @assets Cache-Control "public, max-age=31536000, immutable"
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "no-referrer"
+		-Server
+	}
+}
