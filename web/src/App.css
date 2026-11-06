@@ -966,3 +966,170 @@ button.task__check:disabled {
   color: var(--danger);
   font-size: 14px;
 }
+
+/* ---- Stats ----------------------------------------------------------- */
+
+.stats__card {
+  margin-bottom: var(--space-2);
+  padding: var(--space-3);
+  background: var(--layer-1);
+  border-radius: var(--radius-lg);
+}
+
+.stats__heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.stats__aside {
+  color: var(--text-secondary);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Seconds per day: plain flex bars, scaled by inline height. */
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-half);
+  height: 160px;
+}
+
+.bars--dense {
+  gap: 1px;
+}
+
+.bars__slot {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  border-radius: var(--space-half);
+  background: var(--layer-2);
+}
+
+.bars__bar {
+  width: 100%;
+  border-radius: var(--space-half);
+  background: var(--primary);
+}
+
+.bars__labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--space-1);
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.bars__labels--each {
+  gap: var(--space-half);
+}
+
+.bars__labels--each span {
+  flex: 1;
+  text-align: center;
+}
+
+/* Seconds per category: label, track, value. */
+.meter-list,
+.habit-stats {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.meter {
+  display: grid;
+  grid-template-columns: 128px 1fr 72px;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.meter__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meter__track {
+  height: var(--space-1);
+  border-radius: var(--space-half);
+  background: var(--layer-2);
+}
+
+.meter__fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--space-half);
+  background: var(--primary);
+}
+
+.meter__value {
+  text-align: right;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Habits: title and numbers, then one dot per day in the badge colour. */
+.habit-stat {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.habit-stat__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-2);
+}
+
+.habit-stat__numbers {
+  color: var(--text-secondary);
+}
+
+.habit-stat__numbers strong {
+  color: var(--text);
+}
+
+.dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-half);
+}
+
+.dots__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.dots__dot--done {
+  background: var(--sub-color);
+}
+
+.dots__dot--missed {
+  background: var(--layer-3);
+}
+
+.dots__dot--open {
+  box-shadow: inset 0 0 0 2px var(--layer-3);
+}
+
+.dots__dot--off {
+  background: var(--layer-2);
+  transform: scale(0.5);
+}
+
+@media (max-width: 560px) {
+  .meter {
+    grid-template-columns: 96px 1fr 64px;
+  }
+}

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\GateController;
+use App\Http\Controllers\StatsController;
 use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\TaskCompletionController;
 use App\Http\Controllers\TaskController;
@@ -15,6 +16,7 @@ Route::post('/gate', [GateController::class, 'store'])->middleware('throttle:10,
 
 Route::middleware('gate')->group(function () {
     Route::get('/today', TodayController::class)->name('today');
+    Route::get('/stats', StatsController::class)->name('stats');
     Route::apiResource('categories', CategoryController::class)->except('show');
     Route::apiResource('sub-categories', SubCategoryController::class)
         ->only(['store', 'update', 'destroy'])

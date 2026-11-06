@@ -3,6 +3,7 @@ import BrowseView from './BrowseView.jsx'
 import FocusMode from './FocusMode.jsx'
 import ManageView from './ManageView.jsx'
 import MiniTimer from './MiniTimer.jsx'
+import StatsView from './StatsView.jsx'
 import { useTimer } from './timerContext.js'
 import TodayView from './TodayView.jsx'
 import './App.css'
@@ -10,6 +11,7 @@ import './App.css'
 const VIEWS = {
   today: { label: 'Today', Component: TodayView },
   browse: { label: 'Browse', Component: BrowseView },
+  stats: { label: 'Stats', Component: StatsView },
   // Admin screen: reached from Browse, no tab of its own.
   manage: { label: 'Manage categories', Component: ManageView, hidden: true },
 }
