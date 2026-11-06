@@ -430,8 +430,8 @@ input[type='date'] {
   flex: none;
   display: grid;
   place-items: center;
-  width: var(--space-3);
-  height: var(--space-3);
+  width: var(--space-4);
+  height: var(--space-4);
   border-radius: 50%;
   background: var(--layer-2);
 }
@@ -755,4 +755,27 @@ input[type='date'] {
 
 .mini__digits--over {
   color: var(--primary);
+}
+
+/* ---- Habit check (SPEC §7 step 7) ----------------------------------- */
+
+/* The check is a real button now, sitting beside the edit area. */
+button.task__check {
+  border: none;
+  padding: 0;
+  color: var(--primary);
+  cursor: pointer;
+}
+
+button.task__check:hover {
+  background: var(--layer-3);
+}
+
+button.task__check--on:hover {
+  background: transparent;
+  filter: brightness(1.2);
+}
+
+button.task__check:disabled {
+  cursor: progress;
 }

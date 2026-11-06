@@ -107,8 +107,8 @@ export default function TimerProvider({ children }) {
   )
 
   const value = useMemo(
-    () => ({ timer, syncedAt, mode, version, ...actions }),
-    [timer, syncedAt, mode, version, actions],
+    () => ({ timer, syncedAt, mode, version, sync, ...actions }),
+    [timer, syncedAt, mode, version, sync, actions],
   )
 
   return <TimerContext.Provider value={value}>{children}</TimerContext.Provider>

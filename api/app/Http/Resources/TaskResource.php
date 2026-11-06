@@ -2,12 +2,13 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Task;
 use App\Models\TimeEntry;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin \App\Models\Task
+ * @mixin Task
  */
 class TaskResource extends JsonResource
 {
@@ -43,6 +44,7 @@ class TaskResource extends JsonResource
                 'timeEntries',
                 fn () => (int) $this->timeEntries->sum(fn (TimeEntry $entry) => $entry->elapsedSeconds()),
             ),
+            'streak' => $this->when($this->resource->streakCount !== null, fn () => $this->resource->streakCount),
             'sub_category_id' => $this->sub_category_id,
             'sub_category' => $this->whenLoaded('subCategory', fn () => [
                 'id' => $this->subCategory->id,

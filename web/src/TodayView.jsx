@@ -1,7 +1,7 @@
 import LoadState from './LoadState.jsx'
 import QuickCapture from './QuickCapture.jsx'
 import TaskRows from './TaskRows.jsx'
-import { createTask, deleteTask, updateTask } from './tasksApi.js'
+import { createTask, deleteTask, toggleDone, updateTask } from './tasksApi.js'
 import { useFetch } from './useFetch.js'
 import { useTimer } from './timerContext.js'
 
@@ -22,7 +22,7 @@ function Section({ title, count, tone, children }) {
  * Tasks captured here are due today, so they land on this screen.
  */
 export default function TodayView() {
-  const { version } = useTimer()
+  const { version, sync } = useTimer()
   const { data, state, reload } = useFetch('/today', version)
 
   if (state !== 'ready') return <LoadState state={state} />
@@ -36,6 +36,8 @@ export default function TodayView() {
       tasks={tasks}
       onSave={afterWrite(updateTask)}
       onDelete={afterWrite(deleteTask)}
+      // Ticking closes a running timer on the server: re-sync it too.
+      onToggleDone={afterWrite((task) => toggleDone(task).then(sync))}
     />
   )
 

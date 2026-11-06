@@ -20,3 +20,7 @@ export const timerAction = (id, action) =>
 
 export const getRunningTimer = () =>
   apiGet('/timer/running').then((body) => body.data)
+
+/** Tick or untick a habit for today (a one-off task: complete / reopen). */
+export const toggleDone = (task) =>
+  task.is_done_today ? uncompleteTask(task.id) : completeTask(task.id)

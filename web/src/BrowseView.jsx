@@ -2,7 +2,7 @@ import { useState } from 'react'
 import LoadState from './LoadState.jsx'
 import QuickCapture from './QuickCapture.jsx'
 import TaskRows from './TaskRows.jsx'
-import { createTask, deleteTask, updateTask } from './tasksApi.js'
+import { createTask, deleteTask, toggleDone, updateTask } from './tasksApi.js'
 import { useFetch } from './useFetch.js'
 import { useTimer } from './timerContext.js'
 
@@ -106,7 +106,7 @@ export default function BrowseView() {
   const [subId, setSubId] = useState(null)
   const [showDone, setShowDone] = useState(false)
 
-  const { version } = useTimer()
+  const { version, sync } = useTimer()
   const categoriesFetch = useFetch('/categories', version)
   const tasksFetch = useFetch(tasksPath(categoryId, subId, showDone), version)
 
@@ -173,6 +173,7 @@ export default function BrowseView() {
             tasks={tasks}
             onSave={afterWrite(updateTask)}
             onDelete={afterWrite(deleteTask)}
+            onToggleDone={afterWrite((task) => toggleDone(task).then(sync))}
           />
         )}
       </div>

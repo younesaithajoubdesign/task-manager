@@ -55,6 +55,19 @@ export default function TaskEditor({ task, onSave, onDelete, onClose }) {
   const set = (field) => (event) =>
     setForm((f) => ({ ...f, [field]: event.target.value }))
 
+  // Switching to weekly pre-selects today's weekday: one less click.
+  function setRepeat(event) {
+    const repeat = event.target.value
+    setForm((f) => ({
+      ...f,
+      repeat,
+      repeat_days:
+        repeat === 'weekly' && f.repeat_days.length === 0
+          ? [((new Date().getDay() + 6) % 7) + 1]
+          : f.repeat_days,
+    }))
+  }
+
   function toggleDay(day) {
     setForm((f) => ({
       ...f,
@@ -159,10 +172,10 @@ export default function TaskEditor({ task, onSave, onDelete, onClose }) {
 
       <label className="field">
         <span className="field__label">Repeat</span>
-        <select value={form.repeat} onChange={set('repeat')}>
+        <select value={form.repeat} onChange={setRepeat}>
           <option value="">Never</option>
-          <option value="daily">Every day</option>
-          <option value="weekly">Some weekdays</option>
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
         </select>
       </label>
 

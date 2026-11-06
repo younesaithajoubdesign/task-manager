@@ -18,6 +18,15 @@ class Task extends Model
         'due_at', 'completed_at', 'repeat', 'repeat_days', 'position',
     ];
 
+    /** How far back a streak is counted; keeps it one bounded query. */
+    public const STREAK_WINDOW_DAYS = 365;
+
+    /**
+     * Consecutive completed occurrences, set by attachStreaks() for the
+     * Today screen. A declared property, not an attribute: never saved.
+     */
+    public ?int $streakCount = null;
+
     /**
      * Mirrors the column defaults in the migration, so a freshly created
      * task (quick capture sends only a title) has them without a re-query.
@@ -153,8 +162,64 @@ class Task extends Model
                 ->orderedForList()
                 ->get()
                 ->filter(fn (Task $task) => $task->occursOn($date))
-                ->values(),
+                ->values()
+                ->tap(fn (Collection $habits) => static::attachStreaks($habits, $date)),
         ];
+    }
+
+    /**
+     * Set streakCount on each habit with one query for all of them.
+     *
+     * @param  Collection<int, Task>  $habits
+     */
+    public static function attachStreaks(Collection $habits, Carbon $date): void
+    {
+        if ($habits->isEmpty()) {
+            return;
+        }
+
+        $completedDays = TaskCompletion::query()
+            ->whereIn('task_id', $habits->modelKeys())
+            ->whereDate('date', '>=', $date->copy()->subDays(static::STREAK_WINDOW_DAYS)->toDateString())
+            ->whereDate('date', '<=', $date->toDateString())
+            ->get(['task_id', 'date'])
+            ->groupBy('task_id')
+            ->map(fn ($rows) => $rows->mapWithKeys(fn (TaskCompletion $row) => [$row->date->toDateString() => true])->all());
+
+        $habits->each(fn (Task $habit) => $habit->streakCount = $habit->streak($date, $completedDays->get($habit->id, [])));
+    }
+
+    /**
+     * Consecutive scheduled days completed, counting back from $date.
+     * Only days the habit occurs on count (a Mon/Wed/Fri habit skips the
+     * rest), and a habit not ticked yet today does not break the streak:
+     * the day is not over.
+     *
+     * @param  array<string, true>  $completedDays  keyed by Y-m-d
+     */
+    public function streak(Carbon $date, array $completedDays): int
+    {
+        $day = $date->copy()->startOfDay();
+
+        if (! isset($completedDays[$day->toDateString()])) {
+            $day->subDay();
+        }
+
+        $streak = 0;
+
+        for ($i = 0; $i < static::STREAK_WINDOW_DAYS; $i++, $day->subDay()) {
+            if (! $this->occursOn($day)) {
+                continue;
+            }
+
+            if (! isset($completedDays[$day->toDateString()])) {
+                break;
+            }
+
+            $streak++;
+        }
+
+        return $streak;
     }
 
     // ---- Scopes -------------------------------------------------------

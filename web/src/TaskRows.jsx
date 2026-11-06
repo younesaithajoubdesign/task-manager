@@ -55,48 +55,81 @@ function PlayButton({ task }) {
   )
 }
 
-function TaskRow({ task, onOpen }) {
+/** "5-day streak" for a daily habit, "3 in a row" for a weekly one; from 2 up. */
+function describeStreak(task) {
+  if (!task.is_recurring || !(task.streak >= 2)) return null
+  return task.repeat === 'daily' ? `${task.streak}-day streak` : `${task.streak} in a row`
+}
+
+function HabitCheck({ task, onToggle }) {
+  const [pending, setPending] = useState(false)
+  const done = task.is_done_today
+
+  async function toggle() {
+    setPending(true)
+    try {
+      await onToggle(task)
+    } finally {
+      setPending(false)
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      role="checkbox"
+      aria-checked={done}
+      aria-label={`${task.title}: ${done ? 'done today' : 'not done today'}`}
+      className={`task__check ${done ? 'task__check--on' : ''}`}
+      onClick={toggle}
+      disabled={pending}
+    >
+      {done && <Icon name="check" size={24} />}
+    </button>
+  )
+}
+
+function TaskRow({ task, onOpen, onToggleDone }) {
   const due = task.due_at ? describeDue(task.due_at) : null
-  const meta = due?.text ?? describeRepeat(task)
+  const meta = [due?.text ?? describeRepeat(task), describeStreak(task)]
+    .filter(Boolean)
+    .join(' · ')
   const canPlay = !(task.status === 'done' && !task.is_recurring)
 
   return (
     <div className={`task ${task.is_done_today ? 'task--done' : ''}`}>
+      <span
+        className="task__bar"
+        style={{ '--sub-color': task.sub_category.color }}
+      />
+      {task.is_recurring && onToggleDone && (
+        <HabitCheck task={task} onToggle={onToggleDone} />
+      )}
       <button
         type="button"
         className="task__main"
         title={`${task.sub_category.title} — click to edit`}
         onClick={onOpen}
       >
-      <span
-        className="task__bar"
-        style={{ '--sub-color': task.sub_category.color }}
-      />
-      {task.is_recurring && (
-        // Shows today's state; ticking arrives with SPEC §7 step 7.
-        <span
-          className={`task__check ${task.is_done_today ? 'task__check--on' : ''}`}
-          aria-label={task.is_done_today ? 'Done today' : 'Not done today'}
-        >
-          {task.is_done_today && <Icon name="check" size={24} />}
+        <span className="task__body">
+          <span className="task__title">{task.title}</span>
+          {meta && (
+            <span className={`task__meta ${due?.overdue ? 'task__meta--overdue' : ''}`}>
+              {meta}
+            </span>
+          )}
         </span>
-      )}
-      <span className="task__body">
-        <span className="task__title">{task.title}</span>
-        {meta && (
-          <span className={`task__meta ${due?.overdue ? 'task__meta--overdue' : ''}`}>
-            {meta}
-          </span>
-        )}
-      </span>
       </button>
       {canPlay && <PlayButton task={task} />}
     </div>
   )
 }
 
-/** A list of task rows; clicking a row swaps it for the inline editor. */
-export default function TaskRows({ tasks, onSave, onDelete }) {
+/**
+ * A list of task rows; clicking a row swaps it for the inline editor.
+ * `onToggleDone(task)` ticks / unticks a habit for today.
+ */
+export default function TaskRows({ tasks, onSave, onDelete, onToggleDone }) {
   const [editingId, setEditingId] = useState(null)
 
   return (
@@ -111,7 +144,11 @@ export default function TaskRows({ tasks, onSave, onDelete }) {
               onClose={() => setEditingId(null)}
             />
           ) : (
-            <TaskRow task={task} onOpen={() => setEditingId(task.id)} />
+            <TaskRow
+              task={task}
+              onOpen={() => setEditingId(task.id)}
+              onToggleDone={onToggleDone}
+            />
           )}
         </li>
       ))}
