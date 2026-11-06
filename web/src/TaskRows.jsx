@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Icon from './Icon.jsx'
 import TaskEditor from './TaskEditor.jsx'
 
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -12,12 +13,16 @@ function plural(n, word) {
   return `${n} ${word}${n === 1 ? '' : 's'}`
 }
 
-/** "Due: 20 October · 10 days left", "Due today" or "3 days overdue" (SPEC §5.3). */
+/** "Due: 20 October · 10 days left", "Due: … · today" or "3 days overdue" (SPEC §5.3). */
 function describeDue(iso) {
   const due = new Date(iso)
   const days = Math.round((startOfDay(due) - startOfDay(new Date())) / DAY_MS)
 
   if (days < 0) return { text: `${plural(-days, 'day')} overdue`, overdue: true }
+  if (days === 0 && due < new Date()) {
+    const time = due.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+    return { text: `Was due at ${time} today`, overdue: true }
+  }
 
   const date = due.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })
   const left = days === 0 ? 'today' : `${plural(days, 'day')} left`
@@ -47,6 +52,15 @@ function TaskRow({ task, onOpen }) {
         className="task__bar"
         style={{ '--sub-color': task.sub_category.color }}
       />
+      {task.is_recurring && (
+        // Shows today's state; ticking arrives with SPEC §7 step 7.
+        <span
+          className={`task__check ${task.is_done_today ? 'task__check--on' : ''}`}
+          aria-label={task.is_done_today ? 'Done today' : 'Not done today'}
+        >
+          {task.is_done_today && <Icon name="check" size={24} />}
+        </span>
+      )}
       <span className="task__body">
         <span className="task__title">{task.title}</span>
         {meta && (
@@ -59,20 +73,9 @@ function TaskRow({ task, onOpen }) {
   )
 }
 
-export default function TaskList({ tasks, state, onSave, onDelete }) {
+/** A list of task rows; clicking a row swaps it for the inline editor. */
+export default function TaskRows({ tasks, onSave, onDelete }) {
   const [editingId, setEditingId] = useState(null)
-
-  if (state === 'loading') return <p className="status">Loading tasks…</p>
-  if (state === 'error') {
-    return (
-      <p className="status status--error">
-        Could not reach the API. Is <code>php artisan serve</code> running?
-      </p>
-    )
-  }
-  if (tasks.length === 0) {
-    return <p className="status">Nothing open. Press N to add a task.</p>
-  }
 
   return (
     <ul className="task-list">

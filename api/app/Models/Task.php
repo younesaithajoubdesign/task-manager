@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -125,6 +126,35 @@ class Task extends Model
         return (int) $this->timeEntries()
             ->when($date, fn ($q) => $q->whereDate('started_at', $date->toDateString()))
             ->sum('duration_seconds');
+    }
+
+    /**
+     * The three groups of the Today screen (SPEC §5.2). Each task appears
+     * in exactly one group: a one-off task already past its due time today
+     * counts as overdue, and recurring tasks only ever appear as habits.
+     *
+     * @return array{overdue: Collection<int, Task>, due_today: Collection<int, Task>, habits: Collection<int, Task>}
+     */
+    public static function today(?Carbon $date = null): array
+    {
+        $date ??= today();
+
+        $oneOff = fn () => static::query()
+            ->whereNull('repeat')
+            ->with(static::listRelations())
+            ->orderedForList();
+
+        return [
+            'overdue' => $oneOff()->overdue()->get(),
+            'due_today' => $oneOff()->dueOn($date)->where('due_at', '>=', now())->get(),
+            'habits' => static::query()
+                ->recurring()
+                ->with(static::listRelations())
+                ->orderedForList()
+                ->get()
+                ->filter(fn (Task $task) => $task->occursOn($date))
+                ->values(),
+        ];
     }
 
     // ---- Scopes -------------------------------------------------------

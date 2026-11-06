@@ -304,3 +304,139 @@ input[type='date'] {
 .editor__spacer {
   flex: 1;
 }
+
+/* ---- Header & view tabs --------------------------------------------- */
+
+.app__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+}
+
+.app__date {
+  color: var(--text-secondary);
+}
+
+.tabs {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.tabs__tab {
+  padding: var(--space-1) var(--space-2);
+  border: none;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 20px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tabs__tab:hover {
+  background: var(--layer-1);
+}
+
+.tabs__tab--on {
+  color: var(--text);
+  background: var(--layer-1);
+}
+
+/* ---- Today ---------------------------------------------------------- */
+
+.today__section {
+  margin-top: var(--space-4);
+}
+
+.today__heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-bottom: var(--space-2);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.today__count {
+  min-width: var(--space-3);
+  padding: 0 var(--space-1);
+  border-radius: var(--radius);
+  background: var(--layer-2);
+  color: var(--text);
+  text-align: center;
+  font-size: 12px;
+  line-height: var(--space-3);
+}
+
+/* Overdue is the most urgent group: red heading and a tinted surface. */
+.today__section--danger .today__heading {
+  color: var(--danger);
+}
+
+.today__section--danger .today__count {
+  background: var(--danger);
+  color: var(--layer-0);
+}
+
+.today__section--danger .task {
+  background: color-mix(in srgb, var(--danger) 12%, var(--layer-1));
+}
+
+.today__section--danger .task:hover {
+  background: color-mix(in srgb, var(--danger) 18%, var(--layer-2));
+}
+
+/* ---- Empty state ---------------------------------------------------- */
+
+.empty {
+  padding: var(--space-4) var(--space-3) var(--space-3);
+  background: var(--layer-1);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
+.empty__title {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.empty__text {
+  margin: var(--space-1) 0 var(--space-3);
+  color: var(--text-secondary);
+}
+
+.empty .capture {
+  margin-bottom: 0;
+  text-align: left;
+}
+
+.empty .capture__field {
+  background: var(--layer-2);
+}
+
+.empty .capture__field:focus-within {
+  background: var(--layer-3);
+}
+
+/* ---- Habit check ---------------------------------------------------- */
+
+.task__check {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: var(--space-3);
+  height: var(--space-3);
+  border-radius: 50%;
+  background: var(--layer-2);
+}
+
+.task__check--on {
+  background: transparent;
+  color: var(--primary);
+}

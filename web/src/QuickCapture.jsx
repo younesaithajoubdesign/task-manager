@@ -12,8 +12,14 @@ function isTypingIn(element) {
 /**
  * SPEC §5.5 — one text field, reachable from anywhere with N or Ctrl/Cmd+K.
  * Enter creates the task and keeps focus, so several can be typed in a row.
+ * `defaults` are sent with every title (e.g. Today sends today's due date).
  */
-export default function QuickCapture({ onCreate }) {
+export default function QuickCapture({
+  onCreate,
+  defaults = {},
+  placeholder = 'Add a task…',
+  autoFocus = false,
+}) {
   const inputRef = useRef(null)
   const [title, setTitle] = useState('')
   const [error, setError] = useState(null)
@@ -48,7 +54,7 @@ export default function QuickCapture({ onCreate }) {
     setSaving(true)
     setError(null)
     try {
-      await onCreate({ title: trimmed })
+      await onCreate({ ...defaults, title: trimmed })
       setTitle('')
     } catch (err) {
       setError(Object.values(err.errors ?? {})[0]?.[0] ?? err.message)
@@ -67,7 +73,8 @@ export default function QuickCapture({ onCreate }) {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           onKeyDown={(e) => e.key === 'Escape' && e.currentTarget.blur()}
-          placeholder="Add a task…"
+          placeholder={placeholder}
+          autoFocus={autoFocus}
           aria-label="New task title"
           maxLength={255}
           autoComplete="off"
