@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Icon from './Icon.jsx'
+import { useFetch } from './useFetch.js'
 
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
@@ -14,6 +15,7 @@ function toDateInput(iso) {
 function formFromTask(task) {
   return {
     title: task.title,
+    sub_category_id: task.sub_category_id,
     due_at: toDateInput(task.due_at),
     type: task.type,
     planned_minutes: task.planned_minutes ?? '',
@@ -28,6 +30,7 @@ function formFromTask(task) {
 function formToPayload(form) {
   return {
     title: form.title,
+    sub_category_id: Number(form.sub_category_id),
     due_at: form.due_at || null,
     type: form.type,
     planned_minutes:
@@ -45,6 +48,7 @@ function formToPayload(form) {
 /** Simple full edit form (SPEC §7, step 3). A panel/modal can replace it later. */
 export default function TaskEditor({ task, onSave, onDelete, onClose }) {
   const [form, setForm] = useState(() => formFromTask(task))
+  const { data: categories } = useFetch('/categories')
   const [errors, setErrors] = useState({})
   const [saving, setSaving] = useState(false)
 
@@ -94,6 +98,26 @@ export default function TaskEditor({ task, onSave, onDelete, onClose }) {
         <span className="field__label">Title</span>
         <input value={form.title} onChange={set('title')} autoFocus required />
         {error('title')}
+      </label>
+
+      <label className="field">
+        <span className="field__label">Sub-category</span>
+        <select value={form.sub_category_id} onChange={set('sub_category_id')}>
+          {categories ? (
+            categories.map((category) => (
+              <optgroup key={category.id} label={category.title}>
+                {category.sub_categories.map((sub) => (
+                  <option key={sub.id} value={sub.id}>
+                    {sub.title}
+                  </option>
+                ))}
+              </optgroup>
+            ))
+          ) : (
+            <option value={task.sub_category_id}>{task.sub_category.title}</option>
+          )}
+        </select>
+        {error('sub_category_id')}
       </label>
 
       <label className="field">

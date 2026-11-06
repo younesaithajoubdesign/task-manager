@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import AllTasksView from './AllTasksView.jsx'
+import BrowseView from './BrowseView.jsx'
 import TodayView from './TodayView.jsx'
 import './App.css'
 
 const VIEWS = {
   today: { label: 'Today', Component: TodayView },
-  all: { label: 'All tasks', Component: AllTasksView },
+  browse: { label: 'Browse', Component: BrowseView },
 }
 
 function todayLabel() {
@@ -22,7 +22,7 @@ function App() {
   const { Component } = VIEWS[view]
 
   return (
-    <main className="app">
+    <main className={`app ${view === 'browse' ? 'app--wide' : ''}`}>
       <header className="app__header">
         <nav className="tabs" aria-label="Views">
           {Object.entries(VIEWS).map(([key, { label }]) => (

@@ -440,3 +440,120 @@ input[type='date'] {
   background: transparent;
   color: var(--primary);
 }
+
+/* ---- Browse (SPEC §5.3) -------------------------------------------- */
+
+.app--wide {
+  max-width: 1080px;
+}
+
+.browse {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: start;
+}
+
+.sidebar {
+  position: sticky;
+  top: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-half);
+  padding: var(--space-1);
+  background: var(--layer-1);
+  border-radius: var(--radius-lg);
+}
+
+.sidebar__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border: none;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-secondary);
+  text-align: left;
+  cursor: pointer;
+}
+
+.sidebar__item:hover {
+  background: var(--layer-2);
+  color: var(--text);
+}
+
+/* Selected item: a subtle raised background, one layer up. */
+.sidebar__item--on,
+.sidebar__item--on:hover {
+  background: var(--layer-2);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.sidebar__title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar__count {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.browse__title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: var(--space-2);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  margin-bottom: var(--space-2);
+}
+
+.filters__spacer {
+  flex: 1;
+}
+
+/* Sub-category chips carry their colour as a dot, from the database. */
+.chip--sub {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.chip--sub::before {
+  content: '';
+  width: var(--space-1);
+  height: var(--space-1);
+  border-radius: 50%;
+  background: var(--sub-color);
+}
+
+.chip--sub.chip--on::before {
+  background: var(--layer-0);
+}
+
+@media (max-width: 720px) {
+  .browse {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2);
+  }
+
+  .sidebar {
+    position: static;
+    flex-direction: row;
+    overflow-x: auto;
+  }
+
+  .sidebar__item {
+    flex: none;
+  }
+}
