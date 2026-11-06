@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import Checklist from './Checklist.jsx'
 import { useOnline } from './connectivity.js'
 import Icon from './Icon.jsx'
 import { useTimer } from './timerContext.js'
@@ -118,6 +119,11 @@ export default function FocusMode() {
           <RoundButton icon="check" label="Complete" onClick={complete} primary disabled={offline} />
           <RoundButton icon="replay" label="Reset to zero" onClick={confirmReset} disabled={offline} />
         </div>
+      </div>
+
+      {/* What to watch, read or write on in this session, with its links. */}
+      <div className="focus__list">
+        <Checklist taskId={task.id} title="For this session" />
       </div>
     </div>
   )

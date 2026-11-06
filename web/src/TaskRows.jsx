@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useOnline } from './connectivity.js'
 import Icon from './Icon.jsx'
+import Checklist from './Checklist.jsx'
 import TaskEditor from './TaskEditor.jsx'
 import { useTimer } from './timerContext.js'
 
@@ -96,7 +97,8 @@ function HabitCheck({ task, onToggle }) {
 
 function TaskRow({ task, onOpen, onToggleDone }) {
   const due = task.due_at ? describeDue(task.due_at) : null
-  const meta = [due?.text ?? describeRepeat(task), describeStreak(task)]
+  const listLeft = task.open_items_count > 0 ? `${task.open_items_count} in list` : null
+  const meta = [due?.text ?? describeRepeat(task), describeStreak(task), listLeft]
     .filter(Boolean)
     .join(' · ')
   const canPlay = !(task.status === 'done' && !task.is_recurring)
@@ -142,12 +144,15 @@ export default function TaskRows({ tasks, onSave, onDelete, onToggleDone }) {
       {tasks.map((task) => (
         <li key={task.id}>
           {editingId === task.id ? (
-            <TaskEditor
-              task={task}
-              onSave={onSave}
-              onDelete={onDelete}
-              onClose={() => setEditingId(null)}
-            />
+            <div className="task-open">
+              <TaskEditor
+                task={task}
+                onSave={onSave}
+                onDelete={onDelete}
+                onClose={() => setEditingId(null)}
+              />
+              <Checklist taskId={task.id} editable />
+            </div>
           ) : (
             <TaskRow
               task={task}

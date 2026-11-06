@@ -601,10 +601,23 @@ input[type='date'] {
   position: fixed;
   inset: 0;
   z-index: 10;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
   padding: var(--space-3) var(--space-2);
   background: var(--layer-0);
+  overflow-y: auto;
+}
+
+/* Centred while it fits; with a long checklist the screen scrolls instead. */
+.focus__card {
+  margin-top: auto;
+}
+
+.focus__list {
+  width: min(640px, 100%);
+  margin-bottom: auto;
 }
 
 .focus__corner {
@@ -1423,5 +1436,119 @@ button.task__check:disabled:hover {
   /* The banner sentence wraps to two lines on a phone. */
   :root {
     --offline-banner: 64px;
+  }
+}
+
+/* ---- Checklist: a task's films, articles, subjects -------------------- */
+
+.task-open {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.checklist {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  background: var(--layer-1);
+  border-radius: var(--radius);
+  text-align: left;
+}
+
+.checklist__heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.checklist__count {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.checklist__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+
+.checklist__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 48px;
+}
+
+.checklist__title {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.checklist__title--link {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.checklist__title--link:hover {
+  text-decoration: underline;
+}
+
+.checklist__item--done .checklist__title {
+  color: var(--text-secondary);
+  text-decoration: line-through;
+}
+
+.checklist__date {
+  flex: none;
+  font-size: 14px;
+  color: var(--text-disabled);
+}
+
+.checklist__done summary {
+  padding: var(--space-1) 0;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.checklist__add {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  gap: var(--space-1);
+  margin-top: var(--space-1);
+}
+
+@media (max-width: 767.98px) {
+  .checklist__add {
+    grid-template-columns: 1fr auto;
+  }
+
+  .checklist__add input:first-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 767.98px) {
+  /* With the checklist below it, the card starts at the top of the screen:
+     the close / collapse buttons sit in a row above it instead of over it. */
+  .focus__corner {
+    flex-direction: row;
+  }
+
+  .focus {
+    padding-top: calc(var(--space-2) + 48px + var(--space-2) + env(safe-area-inset-top));
+  }
+
+  .is-offline .focus {
+    padding-top: calc(var(--offline-banner) + var(--space-2) + 48px + var(--space-2) + env(safe-area-inset-top));
   }
 }

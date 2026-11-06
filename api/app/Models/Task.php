@@ -22,6 +22,14 @@ class Task extends Model
     public const STREAK_WINDOW_DAYS = 365;
 
     /**
+     * Every task row shows how many checklist items are left
+     * (open_items_count): one cheap sub-query, no extra round trip.
+     *
+     * @var list<string>
+     */
+    protected $withCount = ['openItems'];
+
+    /**
      * Consecutive completed occurrences, set by attachStreaks() for the
      * Today screen. A declared property, not an attribute: never saved.
      */
@@ -98,6 +106,17 @@ class Task extends Model
     public function completions(): HasMany
     {
         return $this->hasMany(TaskCompletion::class);
+    }
+
+    /** The task's checklist (films, articles, subjects…). */
+    public function items(): HasMany
+    {
+        return $this->hasMany(TaskItem::class);
+    }
+
+    public function openItems(): HasMany
+    {
+        return $this->items()->whereNull('done_at');
     }
 
     // ---- Helpers ------------------------------------------------------

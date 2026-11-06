@@ -44,6 +44,7 @@ class TaskResource extends JsonResource
                 'timeEntries',
                 fn () => (int) $this->timeEntries->sum(fn (TimeEntry $entry) => $entry->elapsedSeconds()),
             ),
+            'open_items_count' => $this->whenCounted('openItems'),
             'streak' => $this->when($this->resource->streakCount !== null, fn () => $this->resource->streakCount),
             'sub_category_id' => $this->sub_category_id,
             'sub_category' => $this->whenLoaded('subCategory', fn () => [

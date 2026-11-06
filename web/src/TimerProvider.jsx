@@ -33,6 +33,9 @@ export default function TimerProvider({ children }) {
   const [mode, setMode] = useState('hidden') // hidden | focus | mini
   const [version, setVersion] = useState(0) // bumps after every write, lists re-read
 
+  // For writes outside the timer (e.g. a checklist item) that change list rows.
+  const refreshLists = useCallback(() => setVersion((v) => v + 1), [])
+
   const apply = useCallback((next) => {
     setTimer(next)
     setSyncedAt(performance.now())
@@ -107,8 +110,8 @@ export default function TimerProvider({ children }) {
   )
 
   const value = useMemo(
-    () => ({ timer, syncedAt, mode, version, sync, ...actions }),
-    [timer, syncedAt, mode, version, sync, actions],
+    () => ({ timer, syncedAt, mode, version, sync, refreshLists, ...actions }),
+    [timer, syncedAt, mode, version, sync, refreshLists, actions],
   )
 
   return <TimerContext.Provider value={value}>{children}</TimerContext.Provider>

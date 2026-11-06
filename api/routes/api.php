@@ -6,6 +6,7 @@ use App\Http\Controllers\StatsController;
 use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\TaskCompletionController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TaskItemController;
 use App\Http\Controllers\TimerController;
 use App\Http\Controllers\TodayController;
 use Illuminate\Support\Facades\Route;
@@ -24,6 +25,12 @@ Route::middleware('gate')->group(function () {
         ->only(['store', 'update', 'destroy'])
         ->parameters(['sub-categories' => 'subCategory']);
     Route::apiResource('tasks', TaskController::class)->except('show');
+
+    // A task's checklist: /tasks/{task}/items to list and add, /items/{item} for one item.
+    Route::apiResource('tasks.items', TaskItemController::class)
+        ->only(['index', 'store', 'update', 'destroy'])
+        ->shallow()
+        ->parameters(['items' => 'taskItem']);
 
     Route::post('/tasks/{task}/complete', [TaskCompletionController::class, 'store'])->name('tasks.complete');
     Route::post('/tasks/{task}/uncomplete', [TaskCompletionController::class, 'destroy'])->name('tasks.uncomplete');
