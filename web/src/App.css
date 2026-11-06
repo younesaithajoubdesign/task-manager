@@ -926,3 +926,43 @@ button.task__check:disabled {
 .add-field:focus-within {
   outline: 2px solid var(--primary);
 }
+
+/* ---- Password gate (SPEC §5.1) -------------------------------------- */
+
+.gate {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  background: var(--layer-0);
+}
+
+.gate__form {
+  display: flex;
+  gap: var(--space-1);
+  width: min(360px, 100%);
+}
+
+.gate__input {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-2);
+  background: var(--layer-1);
+  font-size: 18px;
+}
+
+.gate__input:focus-visible {
+  background: var(--layer-2);
+}
+
+.gate__go {
+  padding: 0 var(--space-3);
+}
+
+.gate__error {
+  color: var(--danger);
+  font-size: 14px;
+}
