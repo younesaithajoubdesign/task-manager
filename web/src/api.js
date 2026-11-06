@@ -7,6 +7,7 @@ export class ApiError extends Error {
     super(body?.message ?? `HTTP ${status}`)
     this.status = status
     this.errors = body?.errors ?? {}
+    this.body = body
   }
 }
 

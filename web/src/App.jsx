@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import BrowseView from './BrowseView.jsx'
 import FocusMode from './FocusMode.jsx'
+import ManageView from './ManageView.jsx'
 import MiniTimer from './MiniTimer.jsx'
 import { useTimer } from './timerContext.js'
 import TodayView from './TodayView.jsx'
@@ -9,6 +10,8 @@ import './App.css'
 const VIEWS = {
   today: { label: 'Today', Component: TodayView },
   browse: { label: 'Browse', Component: BrowseView },
+  // Admin screen: reached from Browse, no tab of its own.
+  manage: { label: 'Manage categories', Component: ManageView, hidden: true },
 }
 
 function todayLabel() {
@@ -30,12 +33,14 @@ function App() {
     <>
     {/* inert while focus mode covers the screen: no tabbing or N-capture behind it. */}
     <main
-      className={`app ${view === 'browse' ? 'app--wide' : ''} ${timer && mode === 'mini' ? 'app--with-mini' : ''}`}
+      className={`app ${view === 'today' ? '' : 'app--wide'} ${timer && mode === 'mini' ? 'app--with-mini' : ''}`}
       inert={focusOpen}
     >
       <header className="app__header">
         <nav className="tabs" aria-label="Views">
-          {Object.entries(VIEWS).map(([key, { label }]) => (
+          {Object.entries(VIEWS)
+            .filter(([, { hidden }]) => !hidden)
+            .map(([key, { label }]) => (
             <button
               key={key}
               type="button"
@@ -49,7 +54,7 @@ function App() {
         </nav>
         {view === 'today' && <p className="app__date">{todayLabel()}</p>}
       </header>
-      <Component key={view} />
+      <Component key={view} navigate={setView} />
     </main>
     {focusOpen && <FocusMode />}
     {timer && mode === 'mini' && <MiniTimer />}

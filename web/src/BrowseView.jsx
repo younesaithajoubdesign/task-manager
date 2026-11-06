@@ -36,7 +36,7 @@ function tasksPath(categoryId, subId, showDone) {
   return query ? `/tasks?${query}` : '/tasks'
 }
 
-function Sidebar({ categories, selectedId, onSelect }) {
+function Sidebar({ categories, selectedId, onSelect, onManage }) {
   const total = categories.reduce((sum, c) => sum + c.open_tasks_count, 0)
   const items = [{ id: ALL, title: 'All', open_tasks_count: total }, ...categories]
 
@@ -56,6 +56,9 @@ function Sidebar({ categories, selectedId, onSelect }) {
           )}
         </button>
       ))}
+      <button type="button" className="sidebar__manage" onClick={onManage}>
+        Manage categories
+      </button>
     </nav>
   )
 }
@@ -101,7 +104,7 @@ function Filters({ subCategories, subId, onSub, showDone, onDone }) {
 }
 
 /** SPEC §5.3 — sidebar of categories, sub-category chips, task list. */
-export default function BrowseView() {
+export default function BrowseView({ navigate }) {
   const [categoryId, setCategoryId] = useState(readStoredCategory)
   const [subId, setSubId] = useState(null)
   const [showDone, setShowDone] = useState(false)
@@ -141,7 +144,12 @@ export default function BrowseView() {
 
   return (
     <div className="browse">
-      <Sidebar categories={categories} selectedId={selectedId} onSelect={selectCategory} />
+      <Sidebar
+        categories={categories}
+        selectedId={selectedId}
+        onSelect={selectCategory}
+        onManage={() => navigate('manage')}
+      />
 
       <div className="browse__main">
         <h2 className="browse__title">{category ? category.title : 'All tasks'}</h2>

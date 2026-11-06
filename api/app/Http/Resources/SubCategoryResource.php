@@ -22,6 +22,7 @@ class SubCategoryResource extends JsonResource
             'title' => $this->title,
             'color' => $this->color,
             'position' => $this->position,
+            'tasks_count' => $this->whenCounted('tasks'),
             'open_tasks_count' => $this->whenCounted('open_tasks_count'),
         ];
     }
