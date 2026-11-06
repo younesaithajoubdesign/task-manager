@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { TimerContext } from './timerContext.js'
 import { completeTask, getRunningTimer, timerAction } from './tasksApi.js'
+import { askNotificationPermission, notifyTargetReached, playChime } from './timerAlert.js'
 
 const COLLAPSED_KEY = 'timer.collapsed'
 
@@ -66,6 +67,31 @@ export default function TimerProvider({ children }) {
     return () => document.removeEventListener('visibilitychange', onVisible)
   }, [sync])
 
+  // A timed task stops itself when its planned duration is reached: paused
+  // (time kept), chime + notification, focus mode shows it. Only while this
+  // session crosses the target: resumed after it, the timer counts freely.
+  useEffect(() => {
+    const planned = timer?.planned_seconds
+    if (!timer?.is_running || !planned) return undefined
+    const beforeThisSession = timer.tracked_seconds_today - timer.current_entry_seconds
+    if (beforeThisSession >= planned) return undefined
+
+    const remainingMs = (planned - timer.tracked_seconds_today) * 1000 - (performance.now() - syncedAt)
+    const id = setTimeout(async () => {
+      playChime()
+      notifyTargetReached(timer.task)
+      try {
+        apply(await timerAction(timer.task.id, 'pause'))
+        setVersion((v) => v + 1)
+      } catch {
+        sync() // offline, or paused on another device: take the server's word
+      }
+      storeCollapsed(false)
+      setMode('focus')
+    }, Math.max(0, remainingMs))
+    return () => clearTimeout(id)
+  }, [timer, syncedAt, apply, sync])
+
   const run = useCallback(
     async (request, { nextMode } = {}) => {
       const next = await request()
@@ -81,6 +107,7 @@ export default function TimerProvider({ children }) {
     () => ({
       start: (task) => {
         storeCollapsed(false)
+        askNotificationPermission()
         return run(() => timerAction(task.id, 'start'), { nextMode: 'focus' })
       },
       pause: () => run(() => timerAction(timer.task.id, 'pause')),

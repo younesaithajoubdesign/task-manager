@@ -238,10 +238,11 @@ Full screen, black. A raised card holds the elapsed time in very large type
 and four circular icon buttons: pause/resume, stop, complete, reset.
 Close button top-right, collapse button below it.
 
-For a `timed` task, when `planned_minutes` is reached the timer **keeps
-counting** and the digits turn to the primary colour. It never stops by
-itself — stopping someone who is still working is worse than letting the
-number grow. A short sound at the target is welcome.
+For a `timed` task, when `planned_minutes` is reached the timer **pauses
+itself** (the time is kept), plays a chime and shows a system notification,
+and focus mode opens on it. Resumed past the target, it **keeps counting**
+with the digits in the primary colour and does not stop again. (Changed on
+request: originally the timer never stopped by itself.)
 
 The display must survive a refresh: on mount, re-read `GET /api/timer/running`.
 

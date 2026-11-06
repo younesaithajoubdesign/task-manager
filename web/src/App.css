@@ -573,6 +573,44 @@ input[type='date'] {
   cursor: pointer;
 }
 
+/* The whole card opens the editor, not just its text: the button's hit area
+   is stretched over the row. The habit circle and the play button sit above it. */
+.task__main::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.task:has(.task__main) {
+  cursor: pointer;
+}
+
+/* Double-click / press-and-hold opens the editor (useOpenGesture): no text
+   selection on the double-click, no iOS callout on the long press. */
+.task__main {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* While a finger is held on a card: it fills in, so the hold is felt. */
+.task--pressing {
+  background: var(--layer-3);
+  transition: background 450ms ease-in;
+}
+
+.task-peek__hint {
+  margin: var(--space-1) 0 0;
+  font-size: 12px;
+  color: var(--text-disabled);
+}
+
+.task__check,
+.task__play {
+  position: relative;
+  z-index: 1;
+}
+
 .task__play {
   flex: none;
   display: grid;
@@ -1503,6 +1541,21 @@ button.task__check:disabled:hover {
   text-decoration: underline;
 }
 
+/* A file:/// link is a button (browsers won't open files from a page): reset it to read as text. */
+.checklist__title--file {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.checklist__hint {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
 .checklist__item--done .checklist__title {
   color: var(--text-secondary);
   text-decoration: line-through;
@@ -1551,4 +1604,74 @@ button.task__check:disabled:hover {
   .is-offline .focus {
     padding-top: calc(var(--offline-banner) + var(--space-2) + 48px + var(--space-2) + env(safe-area-inset-top));
   }
+}
+
+/* Hover card on a task row (TaskPeek): desktop only, never on touch. */
+.task-peek {
+  position: fixed;
+  z-index: 50;
+  width: min(360px, calc(100vw - 12px));
+  padding: var(--space-2);
+  background: var(--layer-2);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px hsl(0 0% 0% / 0.6);
+  pointer-events: none;
+  font-size: 14px;
+  line-height: 1.45;
+  animation: task-peek-in 120ms ease-out;
+}
+
+@keyframes task-peek-in {
+  from { opacity: 0; transform: translateY(-2px); }
+}
+
+.task-peek__title {
+  margin: 0 0 var(--space-1);
+  font-size: 16px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.task-peek__details {
+  margin: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.task-peek__row {
+  display: grid;
+  grid-template-columns: 104px 1fr;
+  gap: var(--space-1);
+}
+
+.task-peek__row dt {
+  color: var(--text-secondary);
+}
+
+.task-peek__row dd {
+  margin: 0;
+}
+
+.task-peek__notes {
+  margin: var(--space-1) 0 0;
+  padding-top: var(--space-1);
+  border-top: 1px solid var(--layer-3);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 8;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.task-peek__link {
+  margin: var(--space-half) 0 0;
+  color: var(--primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .task-peek { animation: none; }
 }

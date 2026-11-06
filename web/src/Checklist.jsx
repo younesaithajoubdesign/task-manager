@@ -9,9 +9,50 @@ function doneLabel(iso) {
   return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 }
 
+/** Copies text, also where navigator.clipboard is missing (plain http on the LAN). */
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text)
+    return true
+  } catch {
+    window.prompt('Copy this link, then paste it in the address bar:', text)
+    return false
+  }
+}
+
+/**
+ * A file on the Mac (file:///…). Browsers refuse to open those from a web
+ * page, so the title copies the link instead: paste it in the address bar.
+ */
+function FileTitle({ item }) {
+  const [copied, setCopied] = useState(false)
+
+  async function copy() {
+    if (await copyText(item.link)) {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2500)
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      className="checklist__title checklist__title--link checklist__title--file"
+      onClick={copy}
+      title={`${decodeURI(item.link)}\nThe browser cannot open files from here: click to copy, then paste in the address bar.`}
+    >
+      {item.title}
+      <span className="checklist__hint" aria-live="polite">
+        {copied ? ' Copied, paste it in the address bar' : ' ⧉ file'}
+      </span>
+    </button>
+  )
+}
+
 /** The title, as a link to the resource when it has one (new tab, the timer keeps running). */
 function ItemTitle({ item }) {
   if (!item.link) return <span className="checklist__title">{item.title}</span>
+  if (/^file:/i.test(item.link)) return <FileTitle item={item} />
   return (
     <a className="checklist__title checklist__title--link" href={item.link} target="_blank" rel="noopener noreferrer">
       {item.title}
@@ -140,7 +181,7 @@ export default function Checklist({ taskId, editable = false, title = 'List' }) 
         <input
           value={draft.link}
           onChange={(e) => setDraft((d) => ({ ...d, link: e.target.value }))}
-          placeholder="Link (optional)"
+          placeholder="Link or file path (optional)"
           aria-label="Link of the new item"
           inputMode="url"
           autoCapitalize="off"

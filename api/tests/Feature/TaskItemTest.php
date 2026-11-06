@@ -42,6 +42,33 @@ it('refuses an item without a title, or a link that is not a web address', funct
 
     $this->postJson(route('tasks.items.store', $this->task), ['title' => 'x', 'link' => 'javascript:alert(1)'])
         ->assertUnprocessable()->assertJsonValidationErrors('link');
+
+    foreach (['file://', 'file:///', 'file://server/a.pdf', 'ftp://example.com/a'] as $link) {
+        $this->postJson(route('tasks.items.store', $this->task), ['title' => 'x', 'link' => $link])
+            ->assertUnprocessable()->assertJsonValidationErrors('link');
+    }
+});
+
+it('accepts a link to a file on the Mac', function () {
+    $pdf = 'file:///Users/me/Downloads/Grammaire%20progressive%20du%20franc%CC%A7ais.pdf';
+
+    expect(addItem($this->task, 'Grammaire', $pdf)['link'])->toBe($pdf);
+});
+
+it('turns a path pasted from Finder into a file link', function () {
+    expect(addItem($this->task, 'Grammaire', '/Users/me/Downloads/Grammaire progressive.pdf')['link'])
+        ->toBe('file:///Users/me/Downloads/Grammaire%20progressive.pdf')
+        ->and(addItem($this->task, 'Encoded', '/Users/me/a%20b.pdf')['link'])
+        ->toBe('file:///Users/me/a%20b.pdf')
+        ->and(addItem($this->task, 'Spaces', 'file:///Users/me/a b.pdf')['link'])
+        ->toBe('file:///Users/me/a%20b.pdf');
+});
+
+it('changes an item link to a file link', function () {
+    $item = addItem($this->task, 'Book', 'example.com/book');
+
+    $this->patchJson(route('items.update', $item['id']), ['link' => '/Users/me/book.pdf'])
+        ->assertOk()->assertJsonPath('data.link', 'file:///Users/me/book.pdf');
 });
 
 it('ticks an item with the date, keeps that date when ticked again, and unticks it', function () {

@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\LinkUrl;
+
 class UpdateTaskItemRequest extends StoreTaskItemRequest
 {
     /**
@@ -13,7 +15,7 @@ class UpdateTaskItemRequest extends StoreTaskItemRequest
     {
         return [
             'title' => ['sometimes', 'required', 'string', 'max:255'],
-            'link' => ['sometimes', 'nullable', 'url:http,https', 'max:2048'],
+            'link' => ['sometimes', 'nullable', 'string', 'max:2048', new LinkUrl],
             'done' => ['sometimes', 'boolean'],
         ];
     }

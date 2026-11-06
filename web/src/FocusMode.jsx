@@ -1,27 +1,9 @@
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import Checklist from './Checklist.jsx'
 import { useOnline } from './connectivity.js'
 import Icon from './Icon.jsx'
 import { useTimer } from './timerContext.js'
 import { formatDuration, useElapsed } from './useElapsed.js'
-
-/** A short, soft beep when the planned duration is reached. */
-function beep() {
-  try {
-    const audio = new AudioContext()
-    const osc = audio.createOscillator()
-    const gain = audio.createGain()
-    osc.frequency.value = 880
-    gain.gain.setValueAtTime(0.15, audio.currentTime)
-    gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.6)
-    osc.connect(gain).connect(audio.destination)
-    osc.start()
-    osc.stop(audio.currentTime + 0.6)
-    osc.onended = () => audio.close()
-  } catch {
-    // No audio available: the colour change still signals the target.
-  }
-}
 
 function RoundButton({ icon, label, onClick, primary, disabled = false }) {
   return (
@@ -39,8 +21,9 @@ function RoundButton({ icon, label, onClick, primary, disabled = false }) {
 }
 
 /**
- * SPEC §5.4 — full screen, black. Past the planned duration the timer keeps
- * counting and the digits turn primary; it never stops by itself.
+ * SPEC §5.4 — full screen, black. At the planned duration the timer pauses
+ * itself, with a chime and a notification (TimerProvider); resumed past the
+ * target, it keeps counting and the digits stay primary.
  */
 export default function FocusMode() {
   const { timer, syncedAt, pause, resume, close, complete, reset, collapse } = useTimer()
@@ -50,13 +33,6 @@ export default function FocusMode() {
   const offline = !useOnline()
   const planned = timer.planned_seconds
   const overTarget = planned !== null && elapsed >= planned
-
-  // Beep once when the target is crossed while watching, not on reload.
-  const wasOver = useRef(overTarget)
-  useEffect(() => {
-    if (overTarget && !wasOver.current && timer.is_running) beep()
-    wasOver.current = overTarget
-  }, [overTarget, timer.is_running])
 
   useEffect(() => {
     function onKeyDown(event) {
@@ -99,13 +75,15 @@ export default function FocusMode() {
 
         <p className="focus__target">
           {!timer.is_running
-            ? planned !== null
-              ? `Paused · target ${task.planned_minutes} min`
-              : 'Paused'
+            ? planned === null
+              ? 'Paused'
+              : overTarget
+                ? `Time's up: ${task.planned_minutes} min reached · resume to keep going`
+                : `Paused · target ${task.planned_minutes} min`
             : planned === null
               ? 'Tracked today'
               : overTarget
-                ? `Target of ${task.planned_minutes} min reached — still counting`
+                ? `Past the ${task.planned_minutes} min target — still counting`
                 : `Target ${task.planned_minutes} min`}
         </p>
 

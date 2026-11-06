@@ -3,6 +3,9 @@ import { useOnline } from './connectivity.js'
 import Icon from './Icon.jsx'
 import Checklist from './Checklist.jsx'
 import TaskEditor from './TaskEditor.jsx'
+import TaskPeek from './TaskPeek.jsx'
+import { useOpenGesture } from './useOpenGesture.js'
+import { useTaskPeek } from './useTaskPeek.js'
 import { useTimer } from './timerContext.js'
 
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -102,9 +105,14 @@ function TaskRow({ task, onOpen, onToggleDone }) {
     .filter(Boolean)
     .join(' · ')
   const canPlay = !(task.status === 'done' && !task.is_recurring)
+  const { anchor, hoverProps } = useTaskPeek()
+  const { pressing, handlers: openHandlers } = useOpenGesture(onOpen)
 
   return (
-    <div className={`task ${task.is_done_today ? 'task--done' : ''}`}>
+    <div
+      className={`task ${task.is_done_today ? 'task--done' : ''} ${pressing ? 'task--pressing' : ''}`}
+      {...hoverProps}
+    >
       <span
         className="task__bar"
         style={{ '--sub-color': task.sub_category.color }}
@@ -115,8 +123,9 @@ function TaskRow({ task, onOpen, onToggleDone }) {
       <button
         type="button"
         className="task__main"
-        title={`${task.sub_category.title} — click to edit`}
-        onClick={onOpen}
+        aria-label={`${task.title}, ${task.sub_category.title}`}
+        aria-description="Double-click, or press and hold, to edit"
+        {...openHandlers}
       >
         <span className="task__body">
           <span className="task__title">{task.title}</span>
@@ -128,6 +137,7 @@ function TaskRow({ task, onOpen, onToggleDone }) {
         </span>
       </button>
       {canPlay && <PlayButton task={task} />}
+      <TaskPeek task={task} anchor={anchor} />
     </div>
   )
 }
