@@ -541,7 +541,8 @@ input[type='date'] {
   background: var(--layer-0);
 }
 
-@media (max-width: 720px) {
+/* Phone: the sidebar becomes the drill-down's first screen (see the phone layout below). */
+@media (max-width: 767.98px) {
   .browse {
     grid-template-columns: minmax(0, 1fr);
     gap: var(--space-2);
@@ -549,12 +550,6 @@ input[type='date'] {
 
   .sidebar {
     position: static;
-    flex-direction: row;
-    overflow-x: auto;
-  }
-
-  .sidebar__item {
-    flex: none;
   }
 }
 
@@ -1131,5 +1126,232 @@ button.task__check:disabled {
 @media (max-width: 560px) {
   .meter {
     grid-template-columns: 96px 1fr 64px;
+  }
+}
+
+/* ---- Phone layout (SPEC addendum §12) --------------------------------
+   One breakpoint: below 768px. Above it nothing here applies. */
+
+.app__screen-title,
+.back {
+  display: none;
+}
+
+.tabbar {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: 6;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 0 var(--space-1) env(safe-area-inset-bottom);
+  background: var(--layer-1);
+}
+
+.tabbar__tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 56px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Text tabs get the same visual weight as the icon one. */
+.tabbar__tab:not(.tabbar__tab--add) span {
+  font-size: 16px;
+}
+
+.tabbar__tab--add {
+  color: var(--primary);
+}
+
+.tabbar__tab--on {
+  color: var(--text);
+}
+
+.tabbar__tab--add.tabbar__tab--on {
+  color: var(--primary);
+}
+
+.add__list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: var(--space-1);
+}
+
+.add__item {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3);
+  background: var(--layer-1);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.add__item::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--space-1);
+  background: var(--sub-color);
+}
+
+.add__title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.add__where {
+  flex: none;
+  color: var(--text-secondary);
+}
+
+.bars__slot {
+  cursor: pointer;
+}
+
+.bars__slot--picked {
+  background: var(--layer-3);
+}
+
+.bars__picked {
+  flex: 1;
+  text-align: center;
+  color: var(--text);
+}
+
+@media (max-width: 767.98px) {
+  /* Room for the tab bar (56px + the home indicator) below the content. */
+  .app {
+    padding: var(--space-3) var(--space-2) calc(56px + var(--space-4) + env(safe-area-inset-bottom));
+  }
+
+  .app--with-mini {
+    padding-bottom: calc(56px + 120px + env(safe-area-inset-bottom));
+  }
+
+  .tabs,
+  .capture__hint {
+    display: none;
+  }
+
+  .app__screen-title {
+    display: block;
+    font-size: 28px;
+    font-weight: 600;
+  }
+
+  .app__header {
+    margin-bottom: var(--space-2);
+  }
+
+  /* The mini timer sits on top of the tab bar, not under it. */
+  .mini {
+    bottom: calc(56px + var(--space-1) + env(safe-area-inset-bottom));
+  }
+
+  /* Focus mode: clear the notch at the top. */
+  .focus__corner {
+    top: calc(var(--space-2) + env(safe-area-inset-top));
+  }
+
+  /* ---- Touch targets: 44 × 44px minimum ---- */
+
+  .icon-button,
+  .task__play {
+    width: 44px;
+    height: 44px;
+  }
+
+  .button,
+  .chip {
+    min-height: 44px;
+  }
+
+  .chip {
+    padding: var(--space-1) var(--space-2);
+  }
+
+  /* The habit check stays a 32px circle; its tap area grows to 48px. */
+  button.task__check {
+    position: relative;
+  }
+
+  button.task__check::after {
+    content: '';
+    position: absolute;
+    inset: calc(-1 * var(--space-1));
+  }
+
+  /* ---- Browse drill-down ---- */
+
+  .sidebar {
+    padding: var(--space-1);
+  }
+
+  .sidebar__item {
+    min-height: 56px;
+    font-size: 18px;
+    color: var(--text);
+  }
+
+  .sidebar__item::after {
+    content: '›';
+    color: var(--text-disabled);
+    font-size: 24px;
+    line-height: 1;
+  }
+
+  .sidebar__count {
+    font-size: 14px;
+  }
+
+  .sidebar__manage {
+    min-height: 44px;
+  }
+
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: 44px;
+    margin: 0 0 var(--space-1) calc(-1 * var(--space-1));
+    padding: 0 var(--space-1);
+    border: none;
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--primary);
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  .back span {
+    font-size: 28px;
+    line-height: 1;
+  }
+
+  /* Many chips: one swipeable row instead of a wall of wrapped lines. */
+  .browse .filters {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin-inline: calc(-1 * var(--space-2));
+    padding-inline: var(--space-2);
+    scrollbar-width: none;
+  }
+
+  .browse .filters .chip {
+    flex: none;
   }
 }

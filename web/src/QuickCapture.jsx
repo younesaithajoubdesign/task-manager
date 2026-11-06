@@ -78,6 +78,8 @@ export default function QuickCapture({
           aria-label="New task title"
           maxLength={255}
           autoComplete="off"
+          // The phone keyboard's return key reads "Go" and submits the form.
+          enterKeyHint="go"
         />
         <kbd className="capture__hint">N</kbd>
       </label>

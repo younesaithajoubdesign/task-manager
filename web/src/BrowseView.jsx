@@ -4,6 +4,7 @@ import QuickCapture from './QuickCapture.jsx'
 import TaskRows from './TaskRows.jsx'
 import { createTask, deleteTask, toggleDone, updateTask } from './tasksApi.js'
 import { useFetch } from './useFetch.js'
+import { useIsMobile } from './useIsMobile.js'
 import { useTimer } from './timerContext.js'
 
 const ALL = 'all'
@@ -103,11 +104,17 @@ function Filters({ subCategories, subId, onSub, showDone, onDone }) {
   )
 }
 
-/** SPEC §5.3 — sidebar of categories, sub-category chips, task list. */
+/**
+ * SPEC §5.3 — sidebar of categories, sub-category chips, task list.
+ * On a phone (addendum §12) it is a drill-down instead: the category list
+ * is a screen of its own, and picking one pushes its chips and tasks.
+ */
 export default function BrowseView({ navigate }) {
   const [categoryId, setCategoryId] = useState(readStoredCategory)
   const [subId, setSubId] = useState(null)
   const [showDone, setShowDone] = useState(false)
+  const isMobile = useIsMobile()
+  const [drilledIn, setDrilledIn] = useState(false)
 
   const { version, sync } = useTimer()
   const categoriesFetch = useFetch('/categories', version)
@@ -125,6 +132,7 @@ export default function BrowseView({ navigate }) {
     setCategoryId(id)
     setSubId(null)
     storeCategory(id)
+    setDrilledIn(true)
   }
 
   const afterWrite = (write) => async (...args) => {
@@ -142,16 +150,29 @@ export default function BrowseView({ navigate }) {
   const tasks = tasksFetch.data ?? []
   const where = sub ? sub.title : category ? category.title : 'any category'
 
+  const sidebar = (
+    <Sidebar
+      categories={categories}
+      selectedId={isMobile ? null : selectedId}
+      onSelect={selectCategory}
+      onManage={() => navigate('manage')}
+    />
+  )
+
+  if (isMobile && !drilledIn) {
+    return <div className="browse">{sidebar}</div>
+  }
+
   return (
     <div className="browse">
-      <Sidebar
-        categories={categories}
-        selectedId={selectedId}
-        onSelect={selectCategory}
-        onManage={() => navigate('manage')}
-      />
+      {!isMobile && sidebar}
 
       <div className="browse__main">
+        {isMobile && (
+          <button type="button" className="back" onClick={() => setDrilledIn(false)}>
+            <span aria-hidden="true">‹</span> Categories
+          </button>
+        )}
         <h2 className="browse__title">{category ? category.title : 'All tasks'}</h2>
 
         <Filters
@@ -174,7 +195,7 @@ export default function BrowseView({ navigate }) {
           <p className="status">
             {showDone
               ? `Nothing completed in ${where} yet.`
-              : `No open tasks in ${where}. Press N to add one.`}
+              : `No open tasks in ${where}. ${isMobile ? 'Add one above.' : 'Press N to add one.'}`}
           </p>
         ) : (
           <TaskRows

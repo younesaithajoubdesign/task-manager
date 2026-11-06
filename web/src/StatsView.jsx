@@ -19,6 +19,7 @@ function rangeQuery(days) {
 
 /** 2h 05m, 45m, 0m — stats read in hours, not seconds. */
 function formatHours(seconds) {
+  if (seconds > 0 && seconds < 60) return '<1m'
   const h = Math.floor(seconds / 3600)
   const m = Math.floor((seconds % 3600) / 60)
   return h > 0 ? `${h}h ${String(m).padStart(2, '0')}m` : `${m}m`
@@ -40,10 +41,15 @@ function Card({ title, aside, children }) {
   )
 }
 
-/** Seconds per day: one bar each, scaled to the busiest day. */
+/**
+ * Seconds per day: one bar each, scaled to the busiest day. Tapping a bar
+ * shows its day and value (no hover on a phone), tapping it again hides it.
+ */
 function DayChart({ days }) {
   const max = Math.max(...days.map((d) => d.seconds), 1)
   const labelEach = days.length <= 14
+  const [pickedDate, setPickedDate] = useState(null)
+  const picked = days.find((d) => d.date === pickedDate) ?? null
 
   return (
     <>
@@ -51,15 +57,18 @@ function DayChart({ days }) {
         {days.map((d) => (
           <div
             key={d.date}
-            className="bars__slot"
+            className={`bars__slot ${d.date === pickedDate ? 'bars__slot--picked' : ''}`}
             title={`${dayLabel(d.date, { weekday: 'short', day: 'numeric', month: 'short' })}: ${formatHours(d.seconds)}`}
+            onClick={() => setPickedDate(d.date === pickedDate ? null : d.date)}
           >
             <div className="bars__bar" style={{ height: `${(d.seconds / max) * 100}%` }} />
           </div>
         ))}
       </div>
-      <div className={`bars__labels ${labelEach ? 'bars__labels--each' : ''}`}>
-        {labelEach
+      <div className={`bars__labels ${labelEach && !picked ? 'bars__labels--each' : ''}`}>
+        {picked
+          ? <span className="bars__picked">{dayLabel(picked.date, { weekday: 'long', day: 'numeric', month: 'long' })}: {formatHours(picked.seconds)}</span>
+          : labelEach
           ? days.map((d) => <span key={d.date}>{dayLabel(d.date, { weekday: 'short' })}</span>)
           : [days[0], days[days.length - 1]].map((d) => (
               <span key={d.date}>{dayLabel(d.date, { day: 'numeric', month: 'short' })}</span>
