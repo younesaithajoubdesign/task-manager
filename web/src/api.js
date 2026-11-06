@@ -1,7 +1,9 @@
-// Laravel runs on its own origin; CORS (api/config/cors.php) allows this dev server.
+// Same origin by default: the Vite dev server proxies /api to Laravel (vite.config.js),
+// and in production the web server does the same. VITE_API_URL can still point
+// elsewhere; CORS (api/config/cors.php) allows http://localhost:5173 for that.
 import { clearToken, getToken, LOCKED_EVENT } from './gateToken.js'
 
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8000'
+const API_URL = import.meta.env.VITE_API_URL ?? ''
 
 /** Error carrying Laravel's 422 field errors: { field: ['message'] }. */
 export class ApiError extends Error {
