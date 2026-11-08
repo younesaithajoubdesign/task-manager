@@ -69,7 +69,11 @@ function describeStreak(task) {
   return task.repeat === 'daily' ? `${task.streak}-day streak` : `${task.streak} in a row`
 }
 
-function HabitCheck({ task, onToggle }) {
+/**
+ * The circle that marks a task done: a habit for today, a one-off task for
+ * good (it then leaves the list for Browse's "Done" filter). Unticking undoes it.
+ */
+function DoneCheck({ task, onToggle }) {
   const [pending, setPending] = useState(false)
   const online = useOnline()
   const done = task.is_done_today
@@ -88,7 +92,11 @@ function HabitCheck({ task, onToggle }) {
       type="button"
       role="checkbox"
       aria-checked={done}
-      aria-label={`${task.title}: ${done ? 'done today' : 'not done today'}`}
+      aria-label={
+        task.is_recurring
+          ? `${task.title}: ${done ? 'done today' : 'not done today'}`
+          : `${task.title}: ${done ? 'done' : 'to do'}`
+      }
       className={`task__check ${done ? 'task__check--on' : ''}`}
       onClick={toggle}
       disabled={pending || !online}
@@ -117,9 +125,7 @@ function TaskRow({ task, onOpen, onToggleDone }) {
         className="task__bar"
         style={{ '--sub-color': task.sub_category.color }}
       />
-      {task.is_recurring && onToggleDone && (
-        <HabitCheck task={task} onToggle={onToggleDone} />
-      )}
+      {onToggleDone && <DoneCheck task={task} onToggle={onToggleDone} />}
       <button
         type="button"
         className="task__main"
@@ -144,7 +150,7 @@ function TaskRow({ task, onOpen, onToggleDone }) {
 
 /**
  * A list of task rows; clicking a row swaps it for the inline editor.
- * `onToggleDone(task)` ticks / unticks a habit for today.
+ * `onToggleDone(task)` ticks / unticks a task: a habit for today, a one-off for good.
  */
 export default function TaskRows({ tasks, onSave, onDelete, onToggleDone }) {
   const [editingId, setEditingId] = useState(null)
