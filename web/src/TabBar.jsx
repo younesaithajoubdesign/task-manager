@@ -5,10 +5,11 @@ const TABS = [
   { key: 'today', label: 'Today' },
   { key: 'browse', label: 'Browse', also: ['manage'] },
   { key: 'add', label: 'Add', icon: 'add' },
+  { key: 'money', label: 'Money' },
   { key: 'stats', label: 'Stats' },
 ]
 
-/** Phone navigation (SPEC addendum §12): four tabs at the bottom, above the home indicator. */
+/** Phone navigation (SPEC addendum §12): five tabs at the bottom, above the home indicator. */
 export default function TabBar({ view, onSelect }) {
   return (
     <nav className="tabbar" aria-label="Views">

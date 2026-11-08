@@ -1193,7 +1193,7 @@ button.task__check:disabled {
   inset: auto 0 0;
   z-index: 6;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   padding: 0 var(--space-1) env(safe-area-inset-bottom);
   background: var(--layer-1);
 }
@@ -1674,4 +1674,462 @@ button.task__check:disabled:hover {
 
 @media (prefers-reduced-motion: reduce) {
   .task-peek { animation: none; }
+}
+
+/* ---- Days-without counter (one unnamed bad habit) --------------------
+   Always on screen, top right; top left in focus mode. */
+
+.counter {
+  position: fixed;
+  top: calc(var(--space-2) + env(safe-area-inset-top));
+  right: var(--space-2);
+  z-index: 20;
+}
+
+.counter--left {
+  right: auto;
+  left: var(--space-2);
+}
+
+.is-offline .counter {
+  top: calc(var(--offline-banner) + var(--space-1) + env(safe-area-inset-top));
+}
+
+.counter__badge {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-half);
+  min-height: 44px;
+  padding: var(--space-half) var(--space-2);
+  border: none;
+  border-radius: 999px;
+  background: var(--layer-1);
+  color: var(--text);
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+
+.counter__badge:hover,
+.counter--open .counter__badge {
+  background: var(--layer-2);
+}
+
+.counter__number {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--success);
+}
+
+.counter__unit {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.counter__panel {
+  position: absolute;
+  top: calc(100% + var(--space-1));
+  right: 0;
+  width: min(340px, calc(100vw - var(--space-4)));
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--layer-1);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 32px hsl(0 0% 0% / 0.7);
+}
+
+.counter--left .counter__panel {
+  right: auto;
+  left: 0;
+}
+
+.counter__panel .status {
+  margin: 0;
+}
+
+.counter__big {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--success);
+}
+
+.counter__facts {
+  display: flex;
+  gap: var(--space-2);
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.counter__confirm {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.counter__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-1);
+}
+
+.button--danger {
+  background: var(--danger);
+  color: var(--layer-0);
+}
+
+.counter__history summary {
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.counter__history ul {
+  list-style: none;
+  margin: var(--space-1) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-half);
+  max-height: 200px;
+  overflow-y: auto;
+  font-size: 14px;
+}
+
+.counter__history li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-1);
+}
+
+.counter__run {
+  color: var(--text-secondary);
+}
+
+.counter__remove {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.counter__remove:hover {
+  background: var(--layer-2);
+  color: var(--danger);
+}
+
+/* Between the phone breakpoint and a wide window, keep the header clear of it. */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .app__header {
+    padding-right: 120px;
+  }
+}
+
+/* Phone: the header holds the screen title on the left; the counter sits right. */
+@media (max-width: 767.98px) {
+  .counter {
+    top: calc(var(--space-2) + env(safe-area-inset-top));
+    right: var(--space-2);
+  }
+
+  .counter__number {
+    font-size: 24px;
+  }
+}
+
+/* ---- Money ------------------------------------------------------------ */
+
+.money-top {
+  display: grid;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+  padding: var(--space-3);
+  background: var(--layer-1);
+  border-radius: var(--radius-lg);
+}
+
+.money-balance {
+  display: grid;
+  gap: var(--space-half);
+}
+
+.money-balance__value {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.money-figures {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-2);
+}
+
+.money-figure {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.money-figure__label {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.money-figure__value {
+  font-size: 20px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.money-figure__value--in {
+  color: var(--success);
+}
+
+.money-figure__value--out {
+  color: var(--danger);
+}
+
+.money-note {
+  margin: var(--space-2) 0 0;
+  font-size: 14px;
+}
+
+/* Entry form: type chips, then amount / what / category / date. */
+.money-form fieldset {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  border: none;
+  min-width: 0;
+}
+
+.money-form__type {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.money-form__type--income.chip--on {
+  background: var(--success);
+}
+
+.money-form__type--expense.chip--on {
+  background: var(--danger);
+}
+
+.money-form__fields {
+  display: grid;
+  grid-template-columns: 120px 2fr 1fr 150px;
+  gap: var(--space-2);
+}
+
+.money-form__fields input {
+  width: 100%;
+  min-width: 0;
+}
+
+.money-form__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.money-form--edit {
+  padding: var(--space-2);
+  background: var(--layer-2);
+  border-radius: var(--radius);
+}
+
+/* Entries: one block per day, newest first. */
+.money-days {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.money-day__head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-1);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.money-day__list,
+.money-top-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-half);
+}
+
+.money-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 48px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius);
+  background: var(--layer-2);
+  position: relative;
+}
+
+.money-row:hover {
+  background: var(--layer-3);
+}
+
+.money-row--pressing {
+  background: var(--layer-3);
+}
+
+.money-row__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  padding: var(--space-1) 0;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* The whole row edits (double-click / hold), not only its text. */
+.money-row__main::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.money-row__title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.money-row__category {
+  flex: none;
+  margin-left: var(--space-1);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.money-row__amount {
+  flex: none;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.money-row__amount--income {
+  color: var(--success);
+}
+
+.money-top-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-1) 0;
+}
+
+/* Charts: the stats bars, in spending red; months pair income and expense. */
+.bars__bar--expense {
+  background: var(--danger);
+}
+
+.bars__bar--income {
+  background: var(--success);
+}
+
+.bars--pairs {
+  gap: var(--space-1);
+}
+
+.bars__pair {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.bars__pair .bars__bar {
+  flex: 1;
+  min-height: 1px;
+}
+
+.money-legend {
+  display: flex;
+  gap: var(--space-2);
+  margin: var(--space-1) 0 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.money-legend span::before {
+  content: '';
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: var(--space-half);
+  border-radius: 2px;
+  vertical-align: -1px;
+}
+
+.money-legend__income::before {
+  background: var(--success);
+}
+
+.money-legend__expense::before {
+  background: var(--danger);
+}
+
+.meter--money {
+  grid-template-columns: 112px 1fr 128px;
+}
+
+@media (max-width: 767.98px) {
+  .money-figures {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .money-balance__value {
+    font-size: 34px;
+  }
+
+  .money-form__fields {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .money-form__title {
+    grid-column: 1 / -1;
+    order: -1;
+  }
+
+  .money-form__amount {
+    order: -2;
+    grid-column: 1 / -1;
+  }
+
+  .money-form__amount input {
+    font-size: 24px;
+  }
+
+  .meter--money {
+    grid-template-columns: 80px 1fr 108px;
+    gap: var(--space-1);
+  }
 }

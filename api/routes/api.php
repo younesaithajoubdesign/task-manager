@@ -1,7 +1,10 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CounterController;
 use App\Http\Controllers\GateController;
+use App\Http\Controllers\MoneyEntryController;
+use App\Http\Controllers\MoneyStatsController;
 use App\Http\Controllers\StatsController;
 use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\TaskCompletionController;
@@ -46,4 +49,15 @@ Route::middleware('gate')->group(function () {
             Route::post('/stop', 'stop')->name('stop');
             Route::post('/reset', 'reset')->name('reset');
         });
+
+    // The days-without counter (one unnamed bad habit).
+    Route::get('/counter', [CounterController::class, 'show'])->name('counter.show');
+    Route::post('/counter/resets', [CounterController::class, 'reset'])->name('counter.reset');
+    Route::delete('/counter/resets/{counterReset}', [CounterController::class, 'destroyReset'])->name('counter.resets.destroy');
+
+    // Personal money: incomes, expenses, and what they say.
+    Route::get('/money/stats', MoneyStatsController::class)->name('money.stats');
+    Route::apiResource('money', MoneyEntryController::class)
+        ->except('show')
+        ->parameters(['money' => 'moneyEntry']);
 });

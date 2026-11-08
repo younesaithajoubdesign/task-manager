@@ -1,15 +1,20 @@
 /* Design tokens — SPEC §6. Dark only. Each layer is 10% lighter than the one below. */
 :root {
-  --layer-0: hsl(0 0% 0%); /* body             */
-  --layer-1: hsl(0 0% 10%); /* cards, sidebar   */
-  --layer-2: hsl(0 0% 20%); /* buttons on cards */
-  --layer-3: hsl(0 0% 30%); /* hover states     */
+  --layer-0: hsl(0 0% 0%);
+  /* body             */
+  --layer-1: hsl(0 0% 5%);
+  /* cards, sidebar   */
+  --layer-2: hsl(0 0% 10%);
+  /* buttons on cards */
+  --layer-3: hsl(0 0% 15%);
+  /* hover states     */
 
   --text: hsl(0 0% 100%);
   --text-secondary: hsl(0 0% 60%);
   --text-disabled: hsl(0 0% 40%);
   --primary: hsl(197 99% 50%);
   --danger: hsl(0 84% 60%);
+  --success: hsl(145 63% 49%);
 
   /* 8px grid; 4px only for tight inline spacing. */
   --space-half: 4px;

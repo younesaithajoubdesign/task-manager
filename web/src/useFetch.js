@@ -3,13 +3,15 @@ import { apiGet } from './api.js'
 import { useConnectivity } from './connectivity.js'
 
 /**
- * GET `path` on mount and expose `reload()` for after a write.
+ * GET `path` on mount and expose `reload()` for after a write. `meta` is the
+ * response's meta block, when it has one (e.g. a list's suggestions).
  * A change of `refreshKey` (e.g. the timer's version) also re-reads, and so
  * does the connection coming back (SPEC addendum §13).
  * Screens re-read from the server so ordering and grouping stay the API's job.
  */
 export function useFetch(path, refreshKey = 0) {
   const [data, setData] = useState(null)
+  const [meta, setMeta] = useState(null)
   const [state, setState] = useState('loading') // loading | ready | error
   const { reconnects } = useConnectivity()
 
@@ -18,6 +20,7 @@ export function useFetch(path, refreshKey = 0) {
       apiGet(path, { signal }).then(
         (body) => {
           setData(body.data)
+          setMeta(body.meta ?? null)
           setState('ready')
         },
         (err) => {
@@ -37,5 +40,5 @@ export function useFetch(path, refreshKey = 0) {
 
   const reload = useCallback(() => fetchData(), [fetchData])
 
-  return { data, state, reload }
+  return { data, meta, state, reload }
 }

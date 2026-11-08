@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import AddView from './AddView.jsx'
 import BrowseView from './BrowseView.jsx'
+import DaysCounter from './DaysCounter.jsx'
 import FocusMode from './FocusMode.jsx'
 import ManageView from './ManageView.jsx'
 import MiniTimer from './MiniTimer.jsx'
+import MoneyView from './MoneyView.jsx'
 import OfflineBanner from './OfflineBanner.jsx'
 import StatsView from './StatsView.jsx'
 import TabBar from './TabBar.jsx'
@@ -15,6 +17,7 @@ import './App.css'
 const VIEWS = {
   today: { label: 'Today', Component: TodayView },
   browse: { label: 'Browse', Component: BrowseView },
+  money: { label: 'Money', Component: MoneyView },
   stats: { label: 'Stats', Component: StatsView },
   // Admin screen: reached from Browse, no tab of its own.
   manage: { label: 'Manage categories', Component: ManageView, hidden: true },
@@ -73,6 +76,8 @@ function App() {
     {isMobile && !focusOpen && <TabBar view={current} onSelect={setView} />}
     {focusOpen && <FocusMode />}
     {timer && mode === 'mini' && <MiniTimer />}
+    {/* Always on screen; in focus mode it moves left, clear of the timer's buttons. */}
+    <DaysCounter corner={focusOpen ? 'left' : 'right'} />
     </>
   )
 }
