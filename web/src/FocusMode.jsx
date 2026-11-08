@@ -62,7 +62,7 @@ export default function FocusMode() {
 
       <div className="focus__card">
         <p className="focus__task">
-          <span className="focus__dot" style={{ '--sub-color': task.sub_category.color }} />
+          {/* <span className="focus__dot" style={{ '--sub-color': task.sub_category.color }} /> */}
           {task.title}
         </p>
 
@@ -94,7 +94,7 @@ export default function FocusMode() {
             <RoundButton icon="play" label="Resume" onClick={resume} disabled={offline} />
           )}
           <RoundButton icon="stop" label="Stop" onClick={close} disabled={offline} />
-          <RoundButton icon="check" label="Complete" onClick={complete} primary disabled={offline} />
+          <RoundButton icon="check" label="Complete" onClick={complete} disabled={offline} />
           <RoundButton icon="replay" label="Reset to zero" onClick={confirmReset} disabled={offline} />
         </div>
       </div>
