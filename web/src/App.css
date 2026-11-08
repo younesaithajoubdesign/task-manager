@@ -1718,7 +1718,7 @@ button.task__check:disabled:hover {
   font-size: 28px;
   font-weight: 700;
   line-height: 1.2;
-  color: var(--success);
+  color: var(--text);
 }
 
 .counter__unit {
@@ -1752,7 +1752,7 @@ button.task__check:disabled:hover {
   margin: 0;
   font-size: 32px;
   font-weight: 700;
-  color: var(--success);
+  color: var(--text);
 }
 
 .counter__facts {
